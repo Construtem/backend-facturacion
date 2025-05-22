@@ -1,0 +1,7 @@
+Para iniciar este proyecto en go se utilizaron los siguientes comandos:
+    
+go mod init backend-facturacion
+go get github.com/gin-gonic/gin
+go get github.com/joho/godotenv
+go get gorm.io/gorm
+go get gorm.io/driver/postgres
