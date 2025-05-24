@@ -40,17 +40,10 @@ cd .\Desktop\
 git clone https://github.com/Construtem/backend-facturacion
 cd backend-facturacion
 ```
-2. Construir imagen desde el directorio creado (ej "C:\Users\Admin\Desktop\backend-facturacion"), debe ejecutar el siguiente comando:
-
+2. Correr aplicación desde directorio creado (ej "C:\Users\Admin\Desktop\backend-facturacion"),
+ejecutando el siguiente comando:
 ```bash
-docker build -t back-facturacion .
-```
-*Esto creará una imagen que contiene todas las dependencias y lo necesario para correr su app en forma local*
-
-3. Correr la imagen creada:
-
-```bash
-docker run -p 8080:8080 back-facturacion
+docker compose up
 ```
 *Luego de ejecutar este comando, su app se encontrará corriendo en el puerto 8080 en "http://localhost:8080"*
 
