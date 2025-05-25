@@ -8,10 +8,9 @@ import (
 
 func main() {
 
-	mercadopago.Main()
 	r := gin.Default()
 	r.POST("/API/v1/webhook")
-	//r.GET("/API/v1/hola", get)
+	r.POST("/API/v1/payment", mercadopago.Payment)
 	r.Run(":3050")
 
 }
