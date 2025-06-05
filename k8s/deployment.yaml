@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-facturacion
+  labels:
+    app: backend-facturacion
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-facturacion
+  template:
+    metadata:
+      labels:
+        app: backend-facturacion
+    spec:
+      containers:
+        - name: backend-facturacion
+          image: gcr.io/construtem/backend-facturacion:latest
+          ports:
+            - containerPort: 8080
