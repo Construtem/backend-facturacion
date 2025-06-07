@@ -1,21 +1,29 @@
+#Ver implementacion de volumes y .env existente en repositorio
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-facturacion
-  labels:
-    app: backend-facturacion
+  name: back-facturacion
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backend-facturacion
+      app: back-facturacion
   template:
     metadata:
       labels:
-        app: backend-facturacion
+        app: back-facturacion
     spec:
       containers:
-        - name: backend-facturacion
-          image: gcr.io/construtem/backend-facturacion:latest
+        - name: back-facturacion
+        # Pendiente: utilizar forma de no hardcodear la imagen y actualizar versiones
+          image: southamerica-east1-docker.pkg.dev/construtem/microservicios-construtem/back-facturacion:latest
           ports:
             - containerPort: 8080
+            # Revisar bien los recursos a utilizar para no usar demas y que no se acaben los creditos gcp xd
+          rescources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
