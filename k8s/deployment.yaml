@@ -20,7 +20,7 @@ spec:
           ports:
             - containerPort: 8080
             # Revisar bien los recursos a utilizar para no usar demas y que no se acaben los creditos gcp xd
-          rescources:
+          resources:
             requests:
               memory: "64Mi"
               cpu: "250m"
