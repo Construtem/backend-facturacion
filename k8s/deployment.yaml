@@ -16,6 +16,7 @@ spec:
         - name: back-facturacion
         # Pendiente: utilizar forma de no hardcodear la imagen y actualizar versiones
           image: southamerica-east1-docker.pkg.dev/construtem/microservicios-construtem/back-facturacion:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           # Aqui se muestran las variables de entorno que se definieron en los secretos
