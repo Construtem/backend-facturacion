@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  # Define un servicio para aplicación backend
+  backend:
+    # Instrucciones para construir la imagen Docker para este servicio
+    build:
+      context: . # Indica que el contexto de construcción es el directorio actual (donde está este docker-compose.yml y el Dockerfile)
+      dockerfile: Dockerfile # Especifica el nombre del Dockerfile.
+    
+    # Mapea los puertos del contenedor al host.
+    # '8080:8080' significa que el puerto 8080 del host se mapea al puerto 8080 del contenedor.
+    ports:
+      - "8080:8080"
+    
+    # Asigna un nombre específico al contenedor para facilitar identificación
+    container_name: back-facturacion
+    
+    # Opcional: Reinicia el contenedor si se detiene inesperadamente
+    restart: unless-stopped
+    
+    # Cuando haya conexion a la base de datos, colocar los aqui variables de entorno
+    # environment:
+    #   - DATABASE_URL=postgres://user:pass@host:port/db

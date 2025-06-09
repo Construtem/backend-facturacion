@@ -1,81 +1,28 @@
 package main
 
 import (
+	"backend-facturacion/routes"
+	"backend-facturacion/utils"
 	"fmt"
 	"log"
 	"os"
 
-	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
-// Modelos
-type Cliente struct {
-	ID        uint `gorm:"primaryKey"`
-	Nombre    string
-	Correo    string
-	Telefono  string
-	Direccion string
-	Facturas  []Factura
-}
+func main() {
+	fmt.Println("Corriendo en localhost:8080 !!!")
 
-type Factura struct {
-	ID        uint `gorm:"primaryKey"`
-	ClienteID uint
-	Cliente   Cliente
-	Fecha     string
-	Total     float64
-	Detalles  []DetalleFactura
-	Pagos     []Pago
-}
-
-type DetalleFactura struct {
-	ID        uint `gorm:"primaryKey"`
-	FacturaID uint
-	Producto  string
-	Cantidad  int
-	Precio    float64
-}
-
-type Pago struct {
-	ID        uint `gorm:"primaryKey"`
-	FacturaID uint
-	Monto     float64
-	FechaPago string
-	Metodo    string
-}
-
-var db *gorm.DB
-
-func initDatabase() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error cargando .env")
+		log.Fatal("Error al cargar el archivo .env")
 	}
 
-	dsn := os.Getenv("DATABASE_URL")
-	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatal("Error conectando a la base de datos:", err)
-	}
+	dsnFromEnv := os.Getenv("DATABASE_DSN")
+	fmt.Println("DATABASE_DSN cargado por godotenv:", dsnFromEnv)
 
-	err = db.AutoMigrate(&Cliente{}, &Factura{}, &DetalleFactura{}, &Pago{})
-	if err != nil {
-		log.Fatal("Error en la migración de esquemas:", err)
-	}
-	fmt.Println("Migraciones realizadas con éxito")
-}
+	utils.InitDB()
+	router := routes.SetupRouter()
+	router.Run() // listen and serve on 0.0.0.0:8080
 
-func main() {
-	initDatabase()
-
-	router := gin.Default()
-
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{"message": "pong"})
-	})
-
-	router.Run(":8080")
 }
