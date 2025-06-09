@@ -1,0 +1,85 @@
+# PENDIENTE: utilizar secrets para id del proyecto y env para no hardcodear tanta cosa xd
+name: CI/CD Backend Facturacion
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  ci-validacion:
+    name: Validación del código
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
+      - name: Instalar Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21
+
+      - name: Descargar dependencias
+        run: go mod download
+
+      - name: Verificar formato del código
+        run: go fmt ./...
+
+      - name: Ejecutar build
+        run: go build ./...
+
+      - name: Ejecutar tests
+        run: go test ./...
+      
+      - name: Validar Dockerfile (build local)
+        run: docker build -t test/front-ventas .
+
+  ci-imagen:
+    name: Construcción y push de imagen Docker
+    needs: ci-validacion
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
+      - name: Autenticarse en Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configurar Docker para usar Artifact Registry
+        run: gcloud auth configure-docker southamerica-east1-docker.pkg.dev
+
+      - name: Construir imagen Docker
+        run: docker build -t southamerica-east1-docker.pkg.dev/construtem/microservicios-construtem/back-facturacion:latest .
+
+      - name: Subir imagen a Artifact Registry
+        run: docker push southamerica-east1-docker.pkg.dev/construtem/microservicios-construtem/back-facturacion:latest
+
+  cd:
+    name: Despliegue Continuo
+    needs: ci-imagen
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
+      - name: Autenticarse en GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configurar acceso a GKE
+        uses: google-github-actions/get-gke-credentials@v1
+        with:
+          cluster_name: construtem-testing
+          location: southamerica-east1
+          project_id: construtem
+
+      - name: Aplicar manifiestos de Kubernetes
+        run: kubectl apply -f k8s/
+
+      - name: Verificar estado de pods
+        run: kubectl get pods -n default
