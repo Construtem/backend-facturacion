@@ -1,4 +1,3 @@
-#Ver implementacion de volumes y .env existente en repositorio
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,6 +18,11 @@ spec:
           image: southamerica-east1-docker.pkg.dev/construtem/microservicios-construtem/back-facturacion:latest
           ports:
             - containerPort: 8080
+          # Aqui se muestran las variables de entorno que se definieron en los secretos
+          # Especificamente se encuentran solo las de la base de datos
+          envFrom:
+            - secretRef:
+                name: back-facturacion-secrets
             # Revisar bien los recursos a utilizar para no usar demas y que no se acaben los creditos gcp xd
           resources:
             requests:
