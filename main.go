@@ -1,14 +1,16 @@
 package main
 
 import (
-	"backend-facturacion/routes"
-	"fmt"
+	"backend-facturacion/mercadopago"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	fmt.Println("Corriendo en localhost:8080 !!!")
-	
-	router := routes.SetupRouter()
-  	router.Run() // listen and serve on 0.0.0.0:8080
-	
+
+	r := gin.Default()
+	r.POST("/API/v1/webhook")
+	r.POST("/API/v1/payment", mercadopago.Payment)
+	r.Run(":3050")
+
 }
