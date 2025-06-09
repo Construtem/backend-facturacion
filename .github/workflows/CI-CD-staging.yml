@@ -1,12 +1,38 @@
-name: CI/CD Backend
+name: CI/CD Backend Facturacion
 
 on:
   push:
     branches: [develop]
 
 jobs:
-  ci-build-push:
+  ci-validacion:
+    name: Validación del código
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v3
+
+      - name: Instalar Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21
+
+      - name: Descargar dependencias
+        run: go mod download
+
+      - name: Verificar formato del código
+        run: go fmt ./...
+
+      - name: Ejecutar build
+        run: go build ./...
+
+      - name: Ejecutar tests
+        run: go test ./...
+
+  ci-imagen:
     name: Construcción y push de imagen Docker
+    needs: ci-validacion
     runs-on: ubuntu-latest
 
     steps:
@@ -27,9 +53,9 @@ jobs:
       - name: Subir imagen a Artifact Registry
         run: docker push southamerica-east1-docker.pkg.dev/construtem/microservicios-construtem/back-facturacion:latest
 
-  cd-deploy:
+  cd:
     name: Despliegue Continuo
-    needs: ci-build-push
+    needs: ci-imagen
     runs-on: ubuntu-latest
 
     steps:
@@ -45,6 +71,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: construtem
+          export_default_credentials: true
 
       - name: Instalar gcloud y gke-gcloud-auth-plugin
         run: |
