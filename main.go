@@ -2,8 +2,18 @@ package main
 
 import (
 	"backend-facturacion/mercadopago"
+	"time"
 
+	"backend-facturacion/handlers"
+	//"backend-facturacion/routes"
+	"backend-facturacion/utils"
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -11,19 +21,18 @@ func main() {
 	r := gin.Default()
 	r.POST("/API/v1/webhook")
 	r.POST("/API/v1/payment", mercadopago.Payment)
-	r.Run(":3050")
+	r.GET("/api/cotizacion/:id", handlers.GetCotizacionByID)
 
-	"backend-facturacion/routes"
-	"backend-facturacion/utils"
-	"fmt"
-	"log"
-	"os"
+	// Middleware CORS
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3050"},
+		AllowMethods:     []string{"GET"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		AllowCredentials: false,
+		MaxAge:           12 * time.Hour,
+	}))
 
-	"github.com/joho/godotenv"
-}
-
-func main() {
-	fmt.Println("Corriendo en localhost:8080 !!!")
+	// Endpoint público
 
 	err := godotenv.Load()
 	if err != nil {
@@ -34,7 +43,6 @@ func main() {
 	fmt.Println("DATABASE_DSN cargado por godotenv:", dsnFromEnv)
 
 	utils.InitDB()
-	router := routes.SetupRouter()
-	router.Run() // listen and serve on 0.0.0.0:8080
+	r.Run(":3050")
 
 }
