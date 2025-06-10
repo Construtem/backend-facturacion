@@ -1,1 +1,37 @@
-k8s/secrets.yaml
+# Archivos binarios
+/bin/
+/*.exe
+/*.exe~
+/*.dll
+/*.so
+/*.dylib
+
+# Archivos generados
+*.log
+*.out
+*.test
+
+# Archivos del entorno Go
+/go.sum
+/go.mod
+
+# Archivos de entorno y configuración
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.env.*
+
+# Directorios de dependencias o compilación
+/vendor/
+/dist/
+/build/
+
+# Archivos del editor
+.idea/
+.vscode/
+*.swp
+*~
