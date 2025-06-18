@@ -10,3 +10,7 @@ type Cotizacion struct {
 	Total        float64   `json:"total"`
 	ItemsJSON    string    `json:"-" gorm:"column:items_json"`
 }
+
+func (Cotizacion) TableName() string {
+	return "cotizacion"
+}
