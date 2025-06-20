@@ -4,29 +4,21 @@ import (
 	"context"
 	"encoding/json"
 
+	"fmt"
+
+	"backend-facturacion/models"
+
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/mercadopago/sdk-go/pkg/config"
 	"github.com/mercadopago/sdk-go/pkg/payment"
 )
 
-type Request struct {
-	TransactionAmount float64 `json:"transaction_amount"`
-	PaymentMethodID   string  `json:"payment_method_id"`
-	Email             string  `json:"email"`
-	CardToken         string  `json:"card_token"`
-}
-
-type PaymentStatus struct {
-	Status             string `json:"status"`
-	TransactionDetails struct {
-		TotalPaidAmount float64 `json:"total_paid_amount"`
-	} `json:"transaction_details"`
-}
-
 func Payment(c *gin.Context) {
 
-	var request1 Request
-	accessToken := accessToken()
+	var request1 models.Request
+	accessToken := os.Getenv("ACCESS_TOKEN")
 
 	//se obtiene el card_token desde el front
 	c.ShouldBind(&request1)
@@ -38,7 +30,10 @@ func Payment(c *gin.Context) {
 
 			"error": err,
 		})
+
+		fmt.Println("Error de token", err)
 		return
+
 	}
 
 	client := payment.NewClient(cfg)
@@ -62,11 +57,12 @@ func Payment(c *gin.Context) {
 
 			"error": err,
 		})
+		fmt.Println("Error de respuesta mercadopago", err)
 		return
 	}
 
 	//Analizar la respuesta de mercadopago, se guarda si fue exitoso o no y la cantidad total pagada
-	var statusResp PaymentStatus
+	var statusResp models.PaymentStatus
 	bytes, _ := json.Marshal(resource)
 	json.Unmarshal(bytes, &statusResp)
 
