@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: back-facturacion-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - api-facturacion.tssw.cl
+      secretName: api-facturacion-tls
+  rules:
+    - host: api-facturacion.tssw.cl
+      http:
+        paths:
+          - path: / # Aquí puedes cambiar el path si tu backend escucha en algo específico
+            pathType: Prefix
+            backend:
+              service:
+                name: back-facturacion-service
+                port:
+                  number: 80
