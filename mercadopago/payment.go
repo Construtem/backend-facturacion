@@ -86,6 +86,15 @@ func Payment(c *gin.Context) {
 		fmt.Println("Correcto")
 	}
 
+	// Actualizar el estado de pago en la cotización
+	var quotePreview models.QuotePreview
+	if err := utils.DB.First(&quotePreview, payment1.QuotePreviewID).Error; err == nil {
+		quotePreview.PaymentStatus = models.PaymentStatus(payment1.Status)
+		utils.DB.Save(&quotePreview)
+	} else {
+		fmt.Println("No se encontró la cotización para actualizar el estado de pago:", err)
+	}
+
 	//respuesta para el front del estado del pago
 	c.JSON(200, gin.H{
 		"id":                statusResp.ID,
