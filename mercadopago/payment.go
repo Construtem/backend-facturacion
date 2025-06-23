@@ -92,6 +92,7 @@ func Payment(c *gin.Context) {
 		"status":            statusResp.Status,
 		"total_paid_amount": statusResp.TransactionDetails.TotalPaidAmount,
 		"cotizacion_id":     request1.CotizacionID,
+		"detalle_status":    statusResp.StatusDetail,
 	})
 
 }
