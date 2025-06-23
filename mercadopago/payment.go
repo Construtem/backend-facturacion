@@ -63,7 +63,7 @@ func Payment(c *gin.Context) {
 	}
 
 	//Analizar la respuesta de mercadopago, se guarda el "id", el "status" y la cantidad total pagada
-	var statusResp models.PaymentStatus
+	var statusResp models.PaymentResp
 	bytes, _ := json.Marshal(resource)
 	json.Unmarshal(bytes, &statusResp)
 

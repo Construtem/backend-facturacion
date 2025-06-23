@@ -1,6 +1,6 @@
 package models
 
-type PaymentStatus struct {
+type PaymentResp struct {
 	ID                 int     `json:"id"`
 	Status             string  `json:"status"`
 	StatusDetail       string  `json:"status_detail"`
@@ -12,6 +12,6 @@ type PaymentStatus struct {
 	PaymentMethodID string `json:"payment_method_id"`
 }
 
-func (PaymentStatus) TableName() string {
+func (PaymentResp) TableName() string {
 	return "paymentstatus"
 }
