@@ -78,7 +78,6 @@ func Payment(c *gin.Context) {
 
 	//verifiacion del status a la api de mercadopago
 	status := utils.VerificarPago(payment1.PagoID)
-	fmt.Println("este es el status de la api xd", status)
 
 	if status == payment1.Status {
 

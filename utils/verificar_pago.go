@@ -31,7 +31,5 @@ func VerificarPago(id int) string {
 		return "error"
 	}
 
-	fmt.Println("El estado es este: ", result.Status)
-
 	return result.Status
 }
