@@ -6,6 +6,7 @@ type Payment_intent struct {
 	Status            string
 	TransactionAmount float64
 	FechaCreacion     string
+	MetodoPago        string
 }
 
 func (Payment_intent) TableName() string {

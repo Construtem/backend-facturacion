@@ -74,6 +74,8 @@ func Payment(c *gin.Context) {
 	payment1.TransactionAmount = statusResp.TransactionDetails.TotalPaidAmount
 	payment1.PagoID = statusResp.ID
 	payment1.QuotePreviewID = request1.CotizacionID
+	payment1.FechaCreacion = statusResp.DateCreated
+	payment1.MetodoPago = statusResp.PaymentMethodID
 	fmt.Println(payment1)
 
 	//verifiacion del status a la api de mercadopago
