@@ -11,6 +11,6 @@ type Cotizacion struct {
 	ItemsJSON    string    `json:"-" gorm:"column:items_json"`
 }
 
-func (Cotizacion) TableName() string {
+/*func (Cotizacion) TableName() string {
 	return "cotizacion"
-}
+}*/
