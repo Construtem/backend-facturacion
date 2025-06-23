@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"encoding/json"
-	"net/http"
-	"strconv"
-
+	//"encoding/json"
 	"backend-facturacion/models"
 	"backend-facturacion/utils" // para obtener la instancia DB
+	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -25,7 +25,7 @@ func GetCotizacionByID(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Conexión a la base de datos no inicializada correctamente."})
 		return
 	}
-	var cotizacion models.Cotizacion
+	var cotizacion models.QuotePreview
 	result := DB.First(&cotizacion, id)
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
@@ -36,18 +36,18 @@ func GetCotizacionByID(c *gin.Context) {
 		return
 	}
 
-	var items []map[string]interface{}
-	err = json.Unmarshal([]byte(cotizacion.ItemsJSON), &items)
-	if err != nil {
-		items = []map[string]interface{}{}
-	}
+	/*	var items []map[string]interface{}
+		err = json.Unmarshal([]byte(cotizacion.ItemsJSON), &items)
+		if err != nil {
+			items = []map[string]interface{}{}
+		}*/
 
 	c.JSON(http.StatusOK, gin.H{
 		"id":            cotizacion.ID,
-		"fecha_emision": cotizacion.FechaEmision,
+		"fecha_emision": cotizacion.IssuedAt.Format(time.RFC3339),
 		"subtotal":      cotizacion.Subtotal,
-		"impuesto":      cotizacion.Impuesto,
+		"impuesto":      cotizacion.Tax,
 		"total":         cotizacion.Total,
-		"items":         items,
+		//"items":         items,
 	})
 }
