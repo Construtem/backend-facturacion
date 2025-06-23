@@ -4,29 +4,22 @@ import (
 	"context"
 	"encoding/json"
 
+	"fmt"
+
+	"backend-facturacion/models"
+	"backend-facturacion/utils"
+
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/mercadopago/sdk-go/pkg/config"
 	"github.com/mercadopago/sdk-go/pkg/payment"
 )
 
-type Request struct {
-	TransactionAmount float64 `json:"transaction_amount"`
-	PaymentMethodID   string  `json:"payment_method_id"`
-	Email             string  `json:"email"`
-	CardToken         string  `json:"card_token"`
-}
-
-type PaymentStatus struct {
-	Status             string `json:"status"`
-	TransactionDetails struct {
-		TotalPaidAmount float64 `json:"total_paid_amount"`
-	} `json:"transaction_details"`
-}
-
 func Payment(c *gin.Context) {
 
-	var request1 Request
-	accessToken := accessToken()
+	var request1 models.Request
+	accessToken := os.Getenv("ACCESS_TOKEN")
 
 	//se obtiene el card_token desde el front
 	c.ShouldBind(&request1)
@@ -38,7 +31,10 @@ func Payment(c *gin.Context) {
 
 			"error": err,
 		})
+
+		fmt.Println("Error de token", err)
 		return
+
 	}
 
 	client := payment.NewClient(cfg)
@@ -62,18 +58,41 @@ func Payment(c *gin.Context) {
 
 			"error": err,
 		})
+		fmt.Println("Error de respuesta mercadopago", err)
 		return
 	}
 
-	//Analizar la respuesta de mercadopago, se guarda si fue exitoso o no y la cantidad total pagada
-	var statusResp PaymentStatus
+	//Analizar la respuesta de mercadopago, se guarda el "id", el "status" y la cantidad total pagada
+	var statusResp models.PaymentResp
 	bytes, _ := json.Marshal(resource)
 	json.Unmarshal(bytes, &statusResp)
 
+	var payment1 models.Payment_intent
+
+	//Creacicon del payment_intent a travez de respuesta de mercadopago
+	payment1.Status = statusResp.Status
+	payment1.TransactionAmount = statusResp.TransactionDetails.TotalPaidAmount
+	payment1.PagoID = statusResp.ID
+	payment1.QuotePreviewID = request1.CotizacionID
+	payment1.FechaCreacion = statusResp.DateCreated
+	payment1.MetodoPago = statusResp.PaymentMethodID
+	fmt.Println(payment1)
+
+	//verifiacion del status a la api de mercadopago
+	status := utils.VerificarPago(payment1.PagoID)
+
+	if status == payment1.Status {
+
+		fmt.Println("Correcto")
+	}
+
 	//respuesta para el front del estado del pago
 	c.JSON(200, gin.H{
+		"id":                statusResp.ID,
 		"status":            statusResp.Status,
 		"total_paid_amount": statusResp.TransactionDetails.TotalPaidAmount,
+		"cotizacion_id":     request1.CotizacionID,
+		"detalle_status":    statusResp.StatusDetail,
 	})
 
 }
