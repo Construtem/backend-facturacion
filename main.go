@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend-facturacion/models"
 	"backend-facturacion/routes"
 	"backend-facturacion/utils"
 	"fmt"
@@ -23,6 +24,12 @@ func main() {
 	utils.InitDB()
 
 	r := routes.SetupRouter()
-	r.Run(":3050")
+
+	utils.InitDB()
+	utils.DB.AutoMigrate(
+		&models.QuotePreview{},
+	//	&models.PaymentIntent{},
+	)
+	r.Run(":8080")
 
 }
