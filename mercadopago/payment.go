@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"backend-facturacion/models"
+	"backend-facturacion/utils"
 
 	"os"
 
@@ -61,15 +62,35 @@ func Payment(c *gin.Context) {
 		return
 	}
 
-	//Analizar la respuesta de mercadopago, se guarda si fue exitoso o no y la cantidad total pagada
+	//Analizar la respuesta de mercadopago, se guarda el "id", el "status" y la cantidad total pagada
 	var statusResp models.PaymentStatus
 	bytes, _ := json.Marshal(resource)
 	json.Unmarshal(bytes, &statusResp)
 
+	var payment1 models.Payment_intent
+
+	//Creacicon del payment_intent a travez de respuesta de mercadopago
+	payment1.Status = statusResp.Status
+	payment1.TransactionAmount = statusResp.TransactionDetails.TotalPaidAmount
+	payment1.PagoID = statusResp.ID
+	payment1.QuotePreviewID = request1.CotizacionID
+	fmt.Println(payment1)
+
+	//verifiacion del status a la api de mercadopago
+	status := utils.VerificarPago(payment1.PagoID)
+	fmt.Println("este es el status de la api xd", status)
+
+	if status == payment1.Status {
+
+		fmt.Println("Correcto")
+	}
+
 	//respuesta para el front del estado del pago
 	c.JSON(200, gin.H{
+		"id":                statusResp.ID,
 		"status":            statusResp.Status,
 		"total_paid_amount": statusResp.TransactionDetails.TotalPaidAmount,
+		"cotizacion_id":     request1.CotizacionID,
 	})
 
 }

@@ -5,6 +5,7 @@ type Request struct {
 	PaymentMethodID   string  `json:"payment_method_id"`
 	Email             string  `json:"email"`
 	CardToken         string  `json:"card_token"`
+	CotizacionID      int     `json:"id"`
 }
 
 func (Request) TableName() string {
