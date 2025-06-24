@@ -19,6 +19,5 @@ services:
     # Opcional: Reinicia el contenedor si se detiene inesperadamente
     restart: unless-stopped
     
-    # Cuando haya conexion a la base de datos, colocar los aqui variables de entorno
-    # environment:
-    #   - DATABASE_URL=postgres://user:pass@host:port/db
+    env_file:
+      - .env
