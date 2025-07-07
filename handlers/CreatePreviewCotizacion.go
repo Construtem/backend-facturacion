@@ -51,11 +51,14 @@ func CreatePreviewCotizacion(c *gin.Context) {
 
 	// Crear el nuevo registro
 	quote := models.QuotePreview{
-		IssuedAt:      fecha,
-		Subtotal:      req.Subtotal,
-		Tax:           req.Impuesto,
-		Total:         req.Total,
-		PaymentStatus: models.Pending, // siempre inicia en pending
+		CotizacionID:              nil, // Explícitamente NULL al inicio
+		IssuedAt:                  fecha,
+		Subtotal:                  req.Subtotal,
+		Tax:                       req.Impuesto,
+		Total:                     req.Total,
+		PaymentStatus:             models.Pending, // siempre inicia en pending
+		StatusPagado:              false,          // Explícitamente false al inicio
+		SuccessfulPaymentIntentID: nil,            // Explícitamente NULL al inicio
 	}
 
 	// Guardar en la base de datos
@@ -72,5 +75,6 @@ func CreatePreviewCotizacion(c *gin.Context) {
 		"impuesto":      quote.Tax,
 		"total":         quote.Total,
 		"estado_pago":   quote.PaymentStatus,
+		"status_pagado": quote.StatusPagado,
 	})
 }

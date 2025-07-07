@@ -28,6 +28,7 @@ func SetupRouter() *gin.Engine {
 	r.GET("/api/cotizacion/:id", handlers.GetCotizacionByID)
 	r.POST("/api/preview_cotizacion", handlers.CreatePreviewCotizacion)
 	r.POST("API/crear_preview", handlers.CrearQuotePreview)
+	r.GET("/api/pdf/factura/:id", handlers.GenerateInvoicePDFHandler)
 
 	return r
 }
