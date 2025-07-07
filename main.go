@@ -1,7 +1,6 @@
 package main
 
 import (
-	"backend-facturacion/models"
 	"backend-facturacion/routes"
 	"backend-facturacion/utils"
 	"fmt"
@@ -26,10 +25,7 @@ func main() {
 	r := routes.SetupRouter()
 
 	utils.InitDB()
-	utils.DB.AutoMigrate(
-		&models.QuotePreview{},
-	//	&models.PaymentIntent{},
-	)
+	//Las migraciones automaticas se borraron
 	r.Run(":8080")
 
 }

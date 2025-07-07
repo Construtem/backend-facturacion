@@ -15,7 +15,7 @@ func SetupRouter() *gin.Engine {
 
 	// Middleware CORS
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://facturacion.tssw.cl"},  // Para trabajar en local usar http://localhost:3000
+		AllowOrigins:     []string{"https://facturacion.tssw.cl"}, // Para trabajar en local usar http://localhost:3000
 		AllowMethods:     []string{"GET, POST"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		AllowCredentials: false,
@@ -27,6 +27,7 @@ func SetupRouter() *gin.Engine {
 	r.POST("/API/v1/payment", mercadopago.Payment)
 	r.GET("/api/cotizacion/:id", handlers.GetCotizacionByID)
 	r.POST("/api/preview_cotizacion", handlers.CreatePreviewCotizacion)
+	r.POST("API/crear_preview", handlers.CrearQuotePreview)
 
 	return r
 }

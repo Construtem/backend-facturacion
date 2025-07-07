@@ -1,12 +1,17 @@
 package models
 
+import "time"
+
 type Payment_intent struct {
-	PagoID            int
+	ID                uint `gorm:"primaryKey"`
 	QuotePreviewID    int
+	PagoID            int
 	Status            string
 	TransactionAmount float64
-	FechaCreacion     string
 	MetodoPago        string
+	EventType         string
+	CreatedAt         string
+	UpdatedAt         time.Time
 }
 
 func (Payment_intent) TableName() string {

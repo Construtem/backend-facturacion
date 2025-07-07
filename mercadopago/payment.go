@@ -74,9 +74,14 @@ func Payment(c *gin.Context) {
 	payment1.TransactionAmount = statusResp.TransactionDetails.TotalPaidAmount
 	payment1.PagoID = statusResp.ID
 	payment1.QuotePreviewID = request1.CotizacionID
-	payment1.FechaCreacion = statusResp.DateCreated
+	payment1.CreatedAt = statusResp.DateCreated
 	payment1.MetodoPago = statusResp.PaymentMethodID
-	fmt.Println(payment1)
+
+	// Guardar payment_intent en la base de datos
+	db := utils.GetDB()
+	if err := db.Create(&payment1).Error; err != nil {
+		fmt.Println("Error guardando payment_intent:", err)
+	}
 
 	//verifiacion del status a la api de mercadopago
 	status := utils.VerificarPago(payment1.PagoID)
@@ -84,6 +89,15 @@ func Payment(c *gin.Context) {
 	if status == payment1.Status {
 
 		fmt.Println("Correcto")
+
+		// Actualizar el estado de pago de la quote preview
+		db := utils.GetDB()
+		err := db.Model(&models.QuotePreview{}).
+			Where("id = ?", payment1.QuotePreviewID).
+			Update("payment_status", payment1.Status).Error
+		if err != nil {
+			fmt.Println("Error actualizando estado de pago:", err)
+		}
 	}
 
 	//respuesta para el front del estado del pago
