@@ -25,7 +25,7 @@ type requestQuotepreview struct {
 func CrearQuotePreview(c *gin.Context) {
 	var request1 requestQuotepreview
 	var preview1 models.QuotePreview
-	var factura1 models.Factura
+	var factura1 models.FacturaTemp
 	c.ShouldBindJSON(&request1)
 
 	// Buscar la cotización en la base de datos
