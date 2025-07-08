@@ -24,14 +24,14 @@ func GenerateInvoicePDF(factura *models.Factura, writer io.Writer) error {
 
 	pdf.SetAutoPageBreak(false, 0)
 
-	// ELIMINAR O COMENTAR: Logo del emisor (temporalmente para ver mejor los datos)
-	// logoPath := "./static/construtem_logo.png"
-	// if _, err := os.Stat(logoPath); os.IsNotExist(err) {
-	// 	log.Printf("ADVERTENCIA: Logo no encontrado en %s. Continuando sin logo.", logoPath)
-	// } else {
-	// 	pdf.Image(logoPath, 15, 15, 30, 0, false, "", 0, "") // Posición y tamaño del logo
-	// }
-
+	/*
+	 logoPath := "./static/construtem_logo.png"
+	 if _, err := os.Stat(logoPath); os.IsNotExist(err) {
+	 	log.Printf("ADVERTENCIA: Logo no encontrado en %s. Continuando sin logo.", logoPath)
+	 } else {
+	 	pdf.Image(logoPath, 15, 15, 30, 0, false, "", 0, "") // Posición y tamaño del logo
+	 }
+	*/
 	// Ahora usar tr() para todos los textos con caracteres especiales
 
 	// 3. Datos del Emisor y Título de Factura

@@ -13,7 +13,7 @@ func GetOrCreateInvoiceData(quotePreviewID uint) (*models.Factura, error) {
 	var factura models.Factura
 
 	// 1. Intentar encontrar una Factura existente para esta QuotePreview
-	if err := utils.DB.Where("ID = ?", quotePreviewID).First(&factura).Error; err == nil {
+	if err := utils.DB.Where("quote_preview_id = ?", quotePreviewID).First(&factura).Error; err == nil {
 		return &factura, nil // Factura encontrada, devolver
 	}
 
