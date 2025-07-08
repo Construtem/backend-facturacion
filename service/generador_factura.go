@@ -9,18 +9,18 @@ import (
 )
 
 // GetOrCreateInvoiceData obtiene o crea los datos completos de la factura
-func GetOrCreateInvoiceData(quotePreviewID uint) (*models.Factura, error) {
+func GetOrCreateInvoiceData(ID uint) (*models.Factura, error) {
 	var factura models.Factura
 
 	// 1. Intentar encontrar una Factura existente para esta QuotePreview
-	if err := utils.DB.Where("quote_preview_id = ?", quotePreviewID).First(&factura).Error; err == nil {
+	if err := utils.DB.Where("quote_preview_id = ?", ID).First(&factura).Error; err == nil {
 		return &factura, nil // Factura encontrada, devolver
 	}
 
 	// 2. Si no existe, obtener datos de QuotePreview SOLO para los campos mínimos
 	var quotePreview models.QuotePreview
-	if err := utils.DB.First(&quotePreview, quotePreviewID).Error; err != nil {
-		return nil, fmt.Errorf("quote preview con ID %d no encontrada: %w", quotePreviewID, err)
+	if err := utils.DB.First(&quotePreview, ID).Error; err != nil {
+		return nil, fmt.Errorf("quote preview con ID %d no encontrada: %w", ID, err)
 	}
 
 	// Generar folio único
@@ -30,9 +30,9 @@ func GetOrCreateInvoiceData(quotePreviewID uint) (*models.Factura, error) {
 	// Estos datos deben venir del frontend o de otras fuentes según tu imagen
 	factura = models.Factura{
 		// Campos básicos
-		QuotePreviewID: quotePreviewID,
-		CotizacionID:   quotePreview.CotizacionID, // Del QuotePreview
-		RutCliente:     nil,                       // Se establecerá más abajo si viene de otra tabla
+		QuotePreviewID: int(ID),
+		CotizacionID:   quotePreview.CotizacionId, // Del QuotePreview
+		RutCliente:     "",                        // Se establecerá más abajo si viene de otra tabla
 		Folio:          fmt.Sprintf("%d", rand.Intn(9000)+1000),
 		FechaEmision:   time.Now(),
 		TipoDocumento:  "Factura Electronica",
@@ -97,8 +97,8 @@ func GetOrCreateInvoiceData(quotePreviewID uint) (*models.Factura, error) {
 	totalFinal := subtotalNeto + iva
 
 	factura.SubtotalNeto = subtotalNeto // ✅ Calculado
-	factura.IVA19 = iva                 // ✅ Calculado
-	factura.IVARetenido = 0             // ✅ Por defecto
+	factura.Iva19 = iva                 // ✅ Calculado
+	factura.IvaRetenido = 0             // ✅ Por defecto
 	factura.TotalFinal = totalFinal     // ✅ Calculado
 
 	// Crear la factura en la base de datos

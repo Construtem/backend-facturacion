@@ -25,7 +25,3 @@ type QuotePreview struct {
 	CreatedAt                 time.Time
 	UpdatedAt                 time.Time
 }
-
-func (QuotePreview) TableName() string {
-	return "quote_previews"
-}

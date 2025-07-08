@@ -228,13 +228,13 @@ func GenerateInvoicePDF(factura *models.Factura, writer io.Writer) error {
 	pdf.SetX(rectX)
 	pdf.CellFormat(35, rowHeight, "IVA 19%", "", 0, "L", false, 0, "")
 	pdf.CellFormat(5, rowHeight, "$", "", 0, "L", false, 0, "")
-	pdf.CellFormat(25, rowHeight, FormatMoneySimple(factura.IVA19), "", 1, "R", false, 0, "")
+	pdf.CellFormat(25, rowHeight, FormatMoneySimple(factura.Iva19), "", 1, "R", false, 0, "")
 
 	// IVA RETENIDO
 	pdf.SetX(rectX)
 	pdf.CellFormat(35, rowHeight, "IVA Retenido", "", 0, "L", false, 0, "")
 	pdf.CellFormat(5, rowHeight, "$", "", 0, "L", false, 0, "")
-	pdf.CellFormat(25, rowHeight, FormatMoneySimple(factura.IVARetenido), "", 1, "R", false, 0, "")
+	pdf.CellFormat(25, rowHeight, FormatMoneySimple(factura.IvaRetenido), "", 1, "R", false, 0, "")
 
 	// Total
 	pdf.SetX(rectX)
