@@ -22,7 +22,6 @@ type QuotePreview struct {
 	Total                     float64       `gorm:"not null"`
 	PaymentStatus             PaymentStatus `gorm:"type:varchar(30);not null;default:'pending'"`
 	SuccessfulPaymentIntentID string        `gorm:"not null"`
-	//Items
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt                 time.Time
+	UpdatedAt                 time.Time
 }
