@@ -137,6 +137,7 @@ func Payment(c *gin.Context) {
 				UrlVerificacion:     facturaTemp.UrlVerificacion,
 				CreatedAt:           facturaTemp.CreatedAt,
 				UpdatedAt:           facturaTemp.UpdatedAt,
+				Items:               facturaTemp.Items,
 			}
 			// Guardar la factura real
 			if err := db.Create(&factura).Error; err != nil {

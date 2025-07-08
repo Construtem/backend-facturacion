@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 type FacturaTemp struct {
 	ID                  uint `gorm:"primaryKey"`
@@ -29,15 +32,15 @@ type FacturaTemp struct {
 	ComunaReceptor      string
 	CiudadReceptor      string
 	ContactoReceptor    string
-	//Items[]          string
-	SubtotalNeto    float64
-	Iva19           float64
-	IvaRetenido     float64
-	TotalFinal      float64
-	UrlPdf          string
-	UrlVerificacion string
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
+	Items               json.RawMessage `gorm:"type:jsonb"`
+	SubtotalNeto        float64
+	Iva19               float64
+	IvaRetenido         float64
+	TotalFinal          float64
+	UrlPdf              string
+	UrlVerificacion     string
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
 }
 
 func (FacturaTemp) TableName() string {

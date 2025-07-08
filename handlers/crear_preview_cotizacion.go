@@ -3,23 +3,24 @@ package handlers
 import (
 	"backend-facturacion/models"
 	"backend-facturacion/utils"
+	"encoding/json"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type requestQuotepreview struct {
-	CotizacionID      int    `json:"cotizacion_id"`
-	RutCliente        string `json:"rut_cliente"`
-	TipoDocumento     string `json:"tipo_documento"`
-	RutEmisor         string `json:"rut_emisor"`
-	EmailEmisor       string `json:"email_emisor"`
-	RutReceptor       string `json:"rut_receptor"`
-	DireccionReceptor string `json:"direccion_receptor"`
-	ComunaReceptor    string `json:"comuna_receptor"`
-	CiudadReceptor    string `json:"ciudad_receptor"`
-	ContactoReceptor  string `json:"contacto_receptor"`
-	//Items[]
+	CotizacionID      int             `json:"cotizacion_id"`
+	RutCliente        string          `json:"rut_cliente"`
+	TipoDocumento     string          `json:"tipo_documento"`
+	RutEmisor         string          `json:"rut_emisor"`
+	EmailEmisor       string          `json:"email_emisor"`
+	RutReceptor       string          `json:"rut_receptor"`
+	DireccionReceptor string          `json:"direccion_receptor"`
+	ComunaReceptor    string          `json:"comuna_receptor"`
+	CiudadReceptor    string          `json:"ciudad_receptor"`
+	ContactoReceptor  string          `json:"contacto_receptor"`
+	Items             json.RawMessage `json:"items"`
 }
 
 func CrearQuotePreview(c *gin.Context) {
@@ -71,6 +72,7 @@ func CrearQuotePreview(c *gin.Context) {
 	factura1.ContactoReceptor = request1.ContactoReceptor
 	factura1.SubtotalNeto = preview1.Subtotal
 	factura1.TotalFinal = preview1.Total
+	factura1.Items = request1.Items
 
 	// Campos constantes o inventados
 	factura1.Folio = "FOLIO123"
