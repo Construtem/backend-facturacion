@@ -4,6 +4,7 @@ import (
 	"backend-facturacion/handlers"
 	"backend-facturacion/mercadopago"
 	"time"
+	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -13,13 +14,18 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
-	// Middleware CORS
+	// Middleware de CORS
+	// Configuración de CORS para permitir solicitudes desde los frontends especificados
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://facturacion.tssw.cl"}, // Para trabajar en local usar http://localhost:3000
-		AllowMethods:     []string{"GET, POST"},
-		AllowHeaders:     []string{"Origin", "Content-Type"},
-		AllowCredentials: false,
-		MaxAge:           12 * time.Hour,
+	    AllowOrigins: []string{	// Lista de URLs permitidas para CORS
+	        os.Getenv("FRONT_VENTAS_URL"),	// URL del frontend de ventas
+	        os.Getenv("FRONT_INVENTARIO_URL"), 	// URL del frontend de inventario
+	        os.Getenv("FRONT_FACTURACION_URL"), // URL del frontend de facturación
+	    },
+	    AllowMethods:     []string{"GET", "POST"},
+	    AllowHeaders:     []string{"Origin", "Content-Type"},
+	    AllowCredentials: false,
+		MaxAge:           12 * time.Hour, // Tiempo máximo de caché para las solicitudes CORS
 	}))
 
 	//Endpoints
