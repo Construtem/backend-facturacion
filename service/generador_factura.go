@@ -31,34 +31,35 @@ func GetOrCreateInvoiceData(ID uint) (*models.Factura, error) {
 	// Generar folio único
 	rand.Seed(time.Now().UnixNano())
 
-	// 2. Crear una nueva Factura con datos mínimos y constantes
+	// Cargar configuración de empresa desde variables de entorno
+	config := LoadCompanyConfig()
+
+	// 2. Crear una nueva Factura con datos de configuración
 	factura = models.Factura{
 		// Campos básicos
 		QuotePreviewID: int(ID),
-		//RutCliente:    "", // Se establecerá más abajo si viene de otra tabla
-		Folio:         fmt.Sprintf("%d", rand.Intn(9000)+1000),
-		FechaEmision:  time.Now(),
-		TipoDocumento: "Factura Electronica",
+		Folio:          fmt.Sprintf("%d", rand.Intn(9000)+1000),
+		FechaEmision:   time.Now(),
+		TipoDocumento:  "Factura Electronica",
 
-		// DATOS DEL EMISOR - Estos se guardan directamente en factura
-		RutEmisor:         "76.123.456-7",
-		RazonSocialEmisor: "Ferretería Construtem S.A.",
-		GiroEmisor:        "Venta al por mayor y menor de artículos de ferreteria",
-		DireccionEmisor:   "Av. Siempre Viva 742",
-		ComunaEmisor:      "Santiago",
-		CiudadEmisor:      "Santiago",
-		TelefonoEmisor:    "+56 2 1234 5678",
-		EmailEmisor:       "contacto@construtem.cl",
+		// DATOS DEL EMISOR - Desde configuración
+		RutEmisor:         config.RUT,
+		RazonSocialEmisor: config.RazonSocial,
+		GiroEmisor:        config.Giro,
+		DireccionEmisor:   config.Direccion,
+		ComunaEmisor:      config.Comuna,
+		CiudadEmisor:      config.Ciudad,
+		TelefonoEmisor:    config.Telefono,
+		EmailEmisor:       config.Email,
 
-		// DATOS DEL RECEPTOR - Estos vienen de otras celdas/tablas y se guardan directamente
-		// TODO: Estos datos deben venir del frontend o de consultas a otras tablas
-		RutReceptor:         "12.345.678-9",      //  Viene de otra celda
-		RazonSocialReceptor: "Cliente Ejemplo",   //  Viene de otra celda
-		GiroReceptor:        "",                  //  Viene de otra celda
-		DireccionReceptor:   "Dirección Cliente", //  Viene de otra celda
-		ComunaReceptor:      "Comuna Cliente",    //  Viene de otra celda
-		CiudadReceptor:      "Ciudad Cliente",    //  Viene de otra celda
-		ContactoReceptor:    "Contacto Cliente",  //  Viene de otra celda
+		// DATOS DEL RECEPTOR - TODO: Obtener de base de datos real
+		RutReceptor:         "abcd1fg-l",       // 12.345.678-9
+		RazonSocialReceptor: "Cliente Ejemplo", // Cliente Ejemplo
+		GiroReceptor:        "Comercio",
+		DireccionReceptor:   "Dirección Cliente",
+		ComunaReceptor:      "Comuna Cliente",
+		CiudadReceptor:      "Ciudad Cliente",
+		ContactoReceptor:    "Contacto Cliente",
 
 		// Datos SII
 		TimbreElectronico: "",
@@ -68,18 +69,18 @@ func GetOrCreateInvoiceData(ID uint) (*models.Factura, error) {
 	// Detalles de ejemplo
 	detalles := []models.DetalleFactura{
 		{
-			SKU:            "PROD001",          //  Viene de otra celda
-			Descripcion:    "Producto Ejemplo", //  Viene de otra celda
-			Cantidad:       2.0,                // Viene de otra celda
-			PrecioUnitario: 15000.0,            //  Viene de otra celda
-			TotalLinea:     30000.0,            //  Calculado
+			SKU:            "PROD001",
+			Descripcion:    "Producto Ejemplo",
+			Cantidad:       2.0,
+			PrecioUnitario: 15000.0,
+			TotalLinea:     30000.0,
 		},
 		{
-			SKU:            "SERV001",                 //  Viene de otra celda
-			Descripcion:    "Servicio de Instalacion", //  Viene de otra celda
-			Cantidad:       1.0,                       //  Viene de otra celda
-			PrecioUnitario: 25000.0,                   //  Viene de otra celda
-			TotalLinea:     25000.0,                   //  Calculado
+			SKU:            "SERV001",
+			Descripcion:    "Servicio de Instalacion",
+			Cantidad:       1.0,
+			PrecioUnitario: 25000.0,
+			TotalLinea:     25000.0,
 		},
 	}
 
@@ -98,32 +99,22 @@ func GetOrCreateInvoiceData(ID uint) (*models.Factura, error) {
 	iva := subtotalNeto * 0.19
 	totalFinal := subtotalNeto + iva
 
-	factura.SubtotalNeto = subtotalNeto //  Calculado
-	factura.Iva19 = iva                 //  Calculado
-	factura.IvaRetenido = 0             //  Por defecto
+	factura.SubtotalNeto = subtotalNeto
+	factura.Iva19 = iva
+	factura.IvaRetenido = 0
 	factura.TotalFinal = totalFinal
 
-	// Crear la factura en la base de datos
+	// validacion antes de guardar en base de datos
+	if err := factura.ValidateForPDF(); err != nil {
+		return nil, fmt.Errorf("datos de factura inválidos: %w", err)
+	}
+
+	// Crear la factura en la base de datos (solo si pasa validación)
 	if err := utils.DB.Create(&factura).Error; err != nil {
 		return nil, fmt.Errorf("error al guardar factura: %w", err)
 	}
 
 	return &factura, nil
-}
-
-// Helper para formatear montos (ej. 1.234.567)
-func FormatMoney(amount float64) string {
-	// Implementar lógica de formateo para CLP
-	s := fmt.Sprintf("%.0f", amount) // Redondear a entero sin decimales
-	n := len(s)
-	if n <= 3 {
-		return s
-	}
-	// Añadir puntos para miles
-	for i := n - 3; i > 0; i -= 3 {
-		s = s[:i] + "." + s[i:]
-	}
-	return "$ " + s // Con el signo peso
 }
 
 // Helper para formatear montos sin símbolo $ (solo números)
