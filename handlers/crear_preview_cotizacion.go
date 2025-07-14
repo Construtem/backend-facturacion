@@ -47,7 +47,7 @@ func CrearQuotePreview(c *gin.Context) {
 	}
 
 	// Usar la nueva función para crear la factura
-	factura, err := utils.CrearFactura(int(preview1.ID))
+	factura, err := utils.CrearFactura(request1.CotizacionID, int(preview1.ID))
 	if err != nil {
 		c.JSON(500, gin.H{"error": "No se pudo crear la factura: " + err.Error()})
 		return

@@ -1,80 +1,116 @@
 package handlers
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 )
 
-// Estructura para los items de la factura
+// Estructura para el cliente
+type Cliente struct {
+	Rut      string `json:"rut"`
+	Nombre   string `json:"nombre"`
+	Telefono string `json:"telefono"`
+	Email    string `json:"email"`
+}
+
+// Estructura para el usuario
+type Usuario struct {
+	Nombre string `json:"nombre"`
+	Email  string `json:"email"`
+	RolID  int    `json:"rol_id"`
+}
+
+// Estructura para la dirección
+type Direccion struct {
+	Direccion string `json:"direccion"`
+	Comuna    string `json:"comuna"`
+	Ciudad    string `json:"ciudad"`
+}
+
+// Estructura para los items
 type ItemFactura struct {
 	Sku            string  `json:"sku"`
+	Nombre         string  `json:"nombre"`
 	Cantidad       int     `json:"cantidad"`
-	Descripcion    string  `json:"descripcion"`
-	TotalLinea     float64 `json:"total_linea"`
-	RecargoPorc    float64 `json:"recargo_porc"`
-	DescuentoPorc  float64 `json:"descuento_porc"`
 	PrecioUnitario float64 `json:"precio_unitario"`
+	Subtotal       float64 `json:"subtotal"`
+	Sucursal       string  `json:"sucursal"`
 }
 
 // Estructura para la respuesta completa
 type DatosFactura struct {
-	CotizacionID      int           `json:"cotizacion_id"`
-	RutCliente        string        `json:"rut_cliente"`
-	TipoDocumento     string        `json:"tipo_documento"`
-	RutEmisor         string        `json:"rut_emisor"`
-	EmailEmisor       string        `json:"email_emisor"`
-	RutReceptor       string        `json:"rut_receptor"`
-	DireccionReceptor string        `json:"direccion_receptor"`
-	ComunaReceptor    string        `json:"comuna_receptor"`
-	CiudadReceptor    string        `json:"ciudad_receptor"`
-	ContactoReceptor  string        `json:"contacto_receptor"`
-	Items             []ItemFactura `json:"items"`
+	ID           int           `json:"id"`
+	FechaCrea    string        `json:"fecha_crea"`
+	Estado       string        `json:"estado"`
+	CostoEnvio   float64       `json:"costo_envio"`
+	TipoDespacho string        `json:"tipo_despacho"`
+	Cliente      Cliente       `json:"cliente"`
+	Usuario      Usuario       `json:"usuario"`
+	Direccion    Direccion     `json:"direccion"`
+	Items        []ItemFactura `json:"items"`
+	SubtotalNeto float64       `json:"subtotal_neto"`
+	Iva          float64       `json:"iva"`
+	Total        float64       `json:"total"`
 }
 
 func PruebaVentas(c *gin.Context) {
-	// Crear datos estáticos para la factura
+	// Obtener el ID del parámetro de la URL
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil || id <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	// Crear datos estáticos para los items
 	items := []ItemFactura{
 		{
-			Sku:            "ABC123",
-			Cantidad:       5,
-			Descripcion:    "Producto A",
-			TotalLinea:     10000,
-			RecargoPorc:    0,
-			DescuentoPorc:  0,
-			PrecioUnitario: 2000,
-		},
-		{
-			Sku:            "XYZ456",
-			Cantidad:       1,
-			Descripcion:    "Servicio de Instalacion",
-			TotalLinea:     5000,
-			RecargoPorc:    0,
-			DescuentoPorc:  0,
-			PrecioUnitario: 5000,
-		},
-		{
-			Sku:            "DEF789",
+			Sku:            "H001",
+			Nombre:         "Martillo carpintero",
 			Cantidad:       2,
-			Descripcion:    "Articulo C",
-			TotalLinea:     7500,
-			RecargoPorc:    5,
-			DescuentoPorc:  0,
-			PrecioUnitario: 3750,
+			PrecioUnitario: 6990,
+			Subtotal:       13980,
+			Sucursal:       "Bodega Central",
+		},
+		{
+			Sku:            "H002",
+			Nombre:         "Destornillador estrella",
+			Cantidad:       3,
+			PrecioUnitario: 2990,
+			Subtotal:       8970,
+			Sucursal:       "Bodega Central",
 		},
 	}
 
-	// Crear la respuesta completa
+	// Crear la respuesta completa (usando el ID recibido)
 	datosFactura := DatosFactura{
-		CotizacionID:      1,
-		RutCliente:        "11111111-1",
-		TipoDocumento:     "NULO",
-		RutEmisor:         "22222222-2",
-		EmailEmisor:       "prueba@prueba.com",
-		RutReceptor:       "33333333-3",
-		DireccionReceptor: "HOLA MUNDO",
-		ComunaReceptor:    "HOLA",
-		CiudadReceptor:    "MUNDO",
-		ContactoReceptor:  "HOLAMUNDO",
-		Items:             items,
+		ID:           id, // Usar el ID recibido
+		FechaCrea:    "2025-07-01 00:00:00",
+		Estado:       "pendiente",
+		CostoEnvio:   5000,
+		TipoDespacho: "a domicilio",
+		Cliente: Cliente{
+			Rut:      "11111111-1",
+			Nombre:   "Juan Herrera",
+			Telefono: "912345111",
+			Email:    "juan.herrera@gmail.com",
+		},
+		Usuario: Usuario{
+			Nombre: "Andres Gomez",
+			Email:  "agomezr@utem.cl",
+			RolID:  2,
+		},
+		Direccion: Direccion{
+			Direccion: "Av. Las Condes 1234",
+			Comuna:    "Las Condes",
+			Ciudad:    "Santiago",
+		},
+		Items:        items,
+		SubtotalNeto: 22950,
+		Iva:          4360.5,
+		Total:        32310.5,
 	}
 
 	// Devolver los datos en formato JSON
