@@ -60,7 +60,7 @@ func CrearQuotePreview(c *gin.Context) {
 	factura1.CotizacionID = request1.CotizacionID
 	factura1.QuotePreviewID = int(preview1.ID)
 	factura1.RutCliente = request1.RutCliente
-	factura1.TipoDocumento = request1.TipoDocumento
+	//factura1.TipoDocumento = request1.TipoDocumento
 	factura1.FechaEmision = time.Now()
 	factura1.FechaVencimiento = time.Now()
 	factura1.RutEmisor = request1.RutEmisor
@@ -75,6 +75,7 @@ func CrearQuotePreview(c *gin.Context) {
 	factura1.Items = request1.Items
 
 	// Campos constantes o inventados
+	factura1.TipoDocumento = "Factura Electrónica"
 	factura1.Folio = "FOLIO123"
 	factura1.TimbreElectronico = "TIMBRE"
 	factura1.SiiIndicacion = "SII"

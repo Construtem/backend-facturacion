@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv" // Para parsear el ID
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,35 +22,41 @@ func GenerateInvoicePDFHandler(c *gin.Context) {
 		return
 	}
 
-	// 1. Obtener o crear los datos de la factura
+	// Obtener datos de factura
 	factura, err := services.GetOrCreateInvoiceData(uint(quotePreviewID))
 	if err != nil {
-		if err.Error() == fmt.Sprintf("quote preview con ID %d no encontrada: record not found", quotePreviewID) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Cotización preliminar no encontrada."})
+		log.Printf("ERROR: %v", err)
+
+		// Diferenciar entre error de validación y error del sistema
+		if strings.Contains(err.Error(), "datos de factura inválidos") {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error":   "Datos insuficientes para generar factura",
+				"details": err.Error(),
+			})
 			return
 		}
-		log.Printf("ERROR: Fallo al obtener/crear datos de factura para ID %d: %v", quotePreviewID, err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interno al preparar la factura."})
+
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al preparar la factura."})
 		return
 	}
 
-	// 2. Generar el PDF
+	// Generar el PDF
 	var buf bytes.Buffer
 	if err := services.GenerateInvoicePDF(factura, &buf); err != nil {
 		log.Printf("ERROR: No se pudo generar el PDF: %v", err)
-		c.JSON(500, gin.H{"error": "Error interno del servidor"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interno del servidor"})
 		return
 	}
 
 	// Verificar que el buffer tenga contenido
 	if buf.Len() == 0 {
 		log.Printf("ERROR: El PDF generado está vacío")
-		c.JSON(500, gin.H{"error": "PDF vacío"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "PDF vacío"})
 		return
 	}
 
-	// 3. Configurar headers y enviar
+	// Configurar headers y enviar
 	c.Header("Content-Type", "application/pdf")
 	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"factura_%s.pdf\"", factura.Folio))
-	c.Data(200, "application/pdf", buf.Bytes())
+	c.Data(http.StatusOK, "application/pdf", buf.Bytes())
 }
