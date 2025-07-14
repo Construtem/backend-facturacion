@@ -37,7 +37,6 @@ func CrearQuotePreview(c *gin.Context) {
 	preview1.Tax = preview1.Subtotal * 0.19
 	preview1.Total = preview1.Subtotal + preview1.Tax
 	preview1.PaymentStatus = models.Pending
-	preview1.SuccessfulPaymentIntentID = "0"
 	preview1.IssuedAt = time.Now()
 
 	// Guardar en la base de datos
