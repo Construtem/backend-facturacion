@@ -3,8 +3,8 @@ package routes
 import (
 	"backend-facturacion/handlers"
 	"backend-facturacion/mercadopago"
-	"time"
 	"os"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -17,14 +17,14 @@ func SetupRouter() *gin.Engine {
 	// Middleware de CORS
 	// Configuración de CORS para permitir solicitudes desde los frontends especificados
 	r.Use(cors.New(cors.Config{
-	    AllowOrigins: []string{	// Lista de URLs permitidas para CORS
-	        os.Getenv("FRONT_VENTAS_URL"),	// URL del frontend de ventas
-	        os.Getenv("FRONT_INVENTARIO_URL"), 	// URL del frontend de inventario
-	        os.Getenv("FRONT_FACTURACION_URL"), // URL del frontend de facturación
-	    },
-	    AllowMethods:     []string{"GET", "POST"},
-	    AllowHeaders:     []string{"Origin", "Content-Type"},
-	    AllowCredentials: false,
+		AllowOrigins: []string{ // Lista de URLs permitidas para CORS
+			os.Getenv("FRONT_VENTAS_URL"),      // URL del frontend de ventas
+			os.Getenv("FRONT_INVENTARIO_URL"),  // URL del frontend de inventario
+			os.Getenv("FRONT_FACTURACION_URL"), // URL del frontend de facturación
+		},
+		AllowMethods:     []string{"GET", "POST"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		AllowCredentials: false,
 		MaxAge:           12 * time.Hour, // Tiempo máximo de caché para las solicitudes CORS
 	}))
 
@@ -34,6 +34,9 @@ func SetupRouter() *gin.Engine {
 	r.GET("/api/cotizacion/:id", handlers.GetCotizacionByID)
 	r.POST("API/crear_preview", handlers.CrearQuotePreview)
 	r.GET("/api/pdf/factura/:id", handlers.GenerateInvoicePDFHandler)
+
+	//endpoint de prueba
+	r.GET("/api/prueba-ventas", handlers.PruebaVentas)
 
 	return r
 }

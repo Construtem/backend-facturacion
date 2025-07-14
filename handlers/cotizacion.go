@@ -36,18 +36,11 @@ func GetCotizacionByID(c *gin.Context) {
 		return
 	}
 
-	/*	var items []map[string]interface{}
-		err = json.Unmarshal([]byte(cotizacion.ItemsJSON), &items)
-		if err != nil {
-			items = []map[string]interface{}{}
-		}*/
-
 	c.JSON(http.StatusOK, gin.H{
 		"id":            cotizacion.ID,
 		"fecha_emision": cotizacion.IssuedAt.Format(time.RFC3339),
 		"subtotal":      cotizacion.Subtotal,
 		"impuesto":      cotizacion.Tax,
 		"total":         cotizacion.Total,
-		//"items":         items,
 	})
 }
