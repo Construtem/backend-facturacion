@@ -26,7 +26,7 @@ func CrearQuotePreview(c *gin.Context) {
 	}
 	var cotizacion Cotizacion
 	db := utils.GetDB()
-	if err := db.Table("cotizacions").Where("id = ?", request1.CotizacionID).First(&cotizacion).Error; err != nil {
+	if err := db.Table("cotizaciones").Where("id = ?", request1.CotizacionID).First(&cotizacion).Error; err != nil {
 		c.JSON(404, gin.H{"error": "Cotización no encontrada"})
 		return
 	}
