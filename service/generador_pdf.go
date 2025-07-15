@@ -139,7 +139,7 @@ func GenerateInvoicePDF(factura *models.Factura, writer io.Writer) error {
 
 		pdf.SetFont("Arial", "B", 10)
 		pdf.SetXY(rectRightX+5, rectRightY+18)
-		pdf.CellFormat(rectRightWidth-10, 5, tr(fmt.Sprintf("N° %s", factura.Folio)), "", 0, "C", false, 0, "")
+		pdf.CellFormat(rectRightWidth-10, 5, tr(fmt.Sprintf("N° %d", factura.ID)), "", 0, "C", false, 0, "")
 
 		pdf.SetDrawColor(0, 0, 0)
 

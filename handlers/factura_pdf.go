@@ -27,16 +27,27 @@ func GenerateInvoicePDFHandler(c *gin.Context) {
 	if err != nil {
 		log.Printf("ERROR: %v", err)
 
-		// Diferenciar entre error de validación y error del sistema
-		if strings.Contains(err.Error(), "datos de factura inválidos") {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error":   "Datos insuficientes para generar factura",
-				"details": err.Error(),
+		// Diferenciar tipos de error para respuestas más específicas
+		if strings.Contains(err.Error(), "factura no encontrada") {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error":   "Factura no encontrada",
+				"details": fmt.Sprintf("No existe una factura para quote_preview_id %d", quotePreviewID),
+				"action":  "Debe crear la factura primero desde el sistema de cotizaciones",
 			})
 			return
 		}
 
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al preparar la factura."})
+		if strings.Contains(err.Error(), "datos de factura incompletos") {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error":   "Datos de factura incompletos",
+				"details": err.Error(),
+				"action":  "Complete los datos faltantes antes de generar el PDF",
+			})
+			return
+		}
+
+		// Error genérico del sistema
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error interno del servidor"})
 		return
 	}
 
