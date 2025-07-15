@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -56,8 +57,9 @@ type DatosFacturaResponse struct {
 
 // CrearFactura obtiene datos del endpoint de prueba y crea una factura
 func CrearFactura(cotizacionID int, quotePreviewID int) (*models.Factura, error) {
-	// URL del endpoint de prueba (ajusta según tu configuración)
-	url := fmt.Sprintf("http://localhost:8080/api/prueba-ventas/%d", cotizacionID)
+	// URL del endpoint usando variable de entorno
+	baseURL := os.Getenv("BACK_VENTAS_URL")
+	url := fmt.Sprintf("%sapi/cotizaciones/checkout/%d", baseURL, cotizacionID)
 
 	// Realizar la petición HTTP
 	resp, err := http.Get(url)

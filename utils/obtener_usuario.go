@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 // ObtenerUsuario obtiene los datos del usuario desde el endpoint
 func ObtenerUsuario(cotizacionID int) (*Usuario, error) {
-	// URL del endpoint de prueba usando el cotizacion_id
-	url := fmt.Sprintf("http://localhost:8080/api/prueba-ventas/%d", cotizacionID)
+	// URL del endpoint usando variable de entorno
+	baseURL := os.Getenv("BACK_VENTAS_URL")
+	url := fmt.Sprintf("%sapi/cotizaciones/checkout/%d", baseURL, cotizacionID)
 
 	// Realizar la petición HTTP
 	resp, err := http.Get(url)
