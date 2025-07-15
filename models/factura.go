@@ -37,6 +37,7 @@ type Factura struct {
 	Iva19               float64
 	IvaRetenido         float64
 	TotalFinal          float64
+	Estado              string
 	UrlPdf              string
 	UrlVerificacion     string
 	CreatedAt           time.Time
@@ -44,7 +45,7 @@ type Factura struct {
 }
 
 func (Factura) TableName() string {
-	return "factura"
+	return "facturas"
 }
 
 type DetalleFactura struct {
