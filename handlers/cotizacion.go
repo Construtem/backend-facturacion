@@ -14,6 +14,10 @@ import (
 type requestQuotepreview struct {
 	CotizacionID int `json:"cotizacion_id"`
 }
+type Cotizacion struct {
+	ID    int
+	Total float64
+}
 
 func GetCotizacionByID(c *gin.Context) {
 
@@ -28,11 +32,6 @@ func GetCotizacionByID(c *gin.Context) {
 	if DB == nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Conexión a la base de datos no inicializada correctamente."})
 		return
-	}
-
-	type Cotizacion struct {
-		ID    int
-		Total float64
 	}
 
 	var request1 requestQuotepreview
@@ -62,12 +61,12 @@ func GetCotizacionByID(c *gin.Context) {
 		return
 	}
 
-	/*// Usar la nueva función para crear la factura
+	// Usar la nueva función para crear la factura
 	factura, err := utils.CrearFactura(request1.CotizacionID, int(preview1.ID))
 	if err != nil {
 		c.JSON(500, gin.H{"error": "No se pudo crear la factura: " + err.Error()})
 		return
-	}*/
+	}
 
 	// Preparar la respuesta básica
 	response := gin.H{
@@ -77,6 +76,7 @@ func GetCotizacionByID(c *gin.Context) {
 		"impuesto":      preview1.Tax,
 		"total":         preview1.Total,
 		"Cotizacion ID": preview1.CotizacionId,
+		"factura ID":    factura.ID,
 	}
 
 	// Obtener los datos del usuario usando el cotizacion_id del QuotePreview encontrado
