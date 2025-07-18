@@ -36,7 +36,7 @@ func SetupRouter() *gin.Engine {
 	r.GET("/API/v1/post-pago/:id", handlers.PostPago)
 
 	//endpoint de prueba
-	//r.GET("/api/cotizaciones/checkout/:id", handlers.PruebaVentas)
+	r.GET("/api/cotizaciones/checkout/:id", handlers.PruebaVentas)
 
 	r.POST("/api/cliente/:id/enviar-despacho", handlers.EnviarDespachoHandler)
 
