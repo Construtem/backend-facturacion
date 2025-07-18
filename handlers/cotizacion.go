@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type requestQuotepreview struct {
@@ -47,25 +48,56 @@ func GetCotizacionByID(c *gin.Context) {
 		return
 	}
 
-	// Llenar los datos de QuotePreview
-	preview1.CotizacionId = request1.CotizacionID
-	preview1.Subtotal = cotizacion.Total
-	preview1.Tax = preview1.Subtotal * 0.19
-	preview1.Total = preview1.Subtotal + preview1.Tax
-	preview1.PaymentStatus = models.Pending
-	preview1.IssuedAt = time.Now()
+	// Verificar si ya existe un QuotePreview para esta cotización
+	var statusPagado models.PaymentStatus
+	err = db.Where("cotizacion_id = ?", request1.CotizacionID).First(&preview1).Error
+	if err != nil {
+		// Si el error es que no se encontró el registro, crear un nuevo QuotePreview
+		if err == gorm.ErrRecordNotFound {
+			// Llenar los datos de QuotePreview
+			preview1.CotizacionId = request1.CotizacionID
+			preview1.Subtotal = cotizacion.Total
+			preview1.Tax = preview1.Subtotal * 0.19
+			preview1.Total = preview1.Subtotal + preview1.Tax
+			preview1.PaymentStatus = models.Pending
+			preview1.IssuedAt = time.Now()
 
-	// Guardar en la base de datos
-	if err := db.Create(&preview1).Error; err != nil {
-		c.JSON(500, gin.H{"error": "No se pudo crear el preview"})
-		return
+			// Guardar en la base de datos
+			if err := db.Create(&preview1).Error; err != nil {
+				c.JSON(500, gin.H{"error": "No se pudo crear el preview"})
+				return
+			}
+
+			// Como es nuevo, no está pagado
+			statusPagado = "nuevo"
+		} else {
+			// Si es otro tipo de error de base de datos
+			c.JSON(500, gin.H{"error": "Error al buscar el quote preview: " + err.Error()})
+			return
+		}
+	} else {
+		// Si encontramos el QuotePreview, verificar si está pagado
+		// Verificar el estado de pago basándose en PaymentStatus
+		statusPagado = preview1.PaymentStatus
 	}
 
-	// Usar la nueva función para crear la factura
-	factura, err := utils.CrearFactura(request1.CotizacionID, int(preview1.ID))
+	// Verificar si ya existe una factura para esta cotización
+	var factura models.Factura
+	err = db.Where("cotizacion_id = ?", request1.CotizacionID).First(&factura).Error
 	if err != nil {
-		c.JSON(500, gin.H{"error": "No se pudo crear la factura: " + err.Error()})
-		return
+		// Si el error es que no se encontró el registro, crear una nueva factura
+		if err == gorm.ErrRecordNotFound {
+			facturaPtr, errCrear := utils.CrearFactura(request1.CotizacionID, int(preview1.ID))
+			if errCrear != nil {
+				c.JSON(500, gin.H{"error": "No se pudo crear la factura: " + errCrear.Error()})
+				return
+			}
+			factura = *facturaPtr
+		} else {
+			// Si es otro tipo de error de base de datos
+			c.JSON(500, gin.H{"error": "Error al buscar la factura: " + err.Error()})
+			return
+		}
 	}
 
 	// Preparar la respuesta básica
@@ -75,8 +107,9 @@ func GetCotizacionByID(c *gin.Context) {
 		"subtotal":      preview1.Subtotal,
 		"impuesto":      preview1.Tax,
 		"total":         preview1.Total,
-		"Cotizacion ID": preview1.CotizacionId,
-		"factura ID":    factura.ID,
+		"cotizacion_id": preview1.CotizacionId,
+		"factura_id":    factura.ID,
+		"pagado":        statusPagado,
 	}
 
 	// Obtener los datos del usuario usando el cotizacion_id del QuotePreview encontrado
