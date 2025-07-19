@@ -99,54 +99,32 @@ func Payment(c *gin.Context) {
 			fmt.Println("Error actualizando estado de pago:", err)
 		}
 
-		// Buscar la factura temporal
-		var facturaTemp models.FacturaTemp
-		if err := db.Where("quote_preview_id = ?", request1.CotizacionID).First(&facturaTemp).Error; err == nil {
-			// Copiar los datos a una nueva factura real
-			factura := models.Factura{
-				CotizacionID:        facturaTemp.CotizacionID,
-				QuotePreviewID:      facturaTemp.QuotePreviewID,
-				RutCliente:          facturaTemp.RutCliente,
-				TipoDocumento:       facturaTemp.TipoDocumento,
-				Folio:               facturaTemp.Folio,
-				FechaEmision:        facturaTemp.FechaEmision,
-				FechaVencimiento:    facturaTemp.FechaVencimiento,
-				TimbreElectronico:   facturaTemp.TimbreElectronico,
-				SiiIndicacion:       facturaTemp.SiiIndicacion,
-				FraseLegal:          facturaTemp.FraseLegal,
-				RutEmisor:           facturaTemp.RutEmisor,
-				RazonSocialEmisor:   facturaTemp.RazonSocialEmisor,
-				GiroEmisor:          facturaTemp.GiroEmisor,
-				DireccionEmisor:     facturaTemp.DireccionEmisor,
-				ComunaEmisor:        facturaTemp.ComunaEmisor,
-				CiudadEmisor:        facturaTemp.CiudadEmisor,
-				TelefonoEmisor:      facturaTemp.TelefonoEmisor,
-				EmailEmisor:         facturaTemp.EmailEmisor,
-				RutReceptor:         facturaTemp.RutReceptor,
-				RazonSocialReceptor: facturaTemp.RazonSocialReceptor,
-				GiroReceptor:        facturaTemp.GiroReceptor,
-				DireccionReceptor:   facturaTemp.DireccionReceptor,
-				ComunaReceptor:      facturaTemp.ComunaReceptor,
-				CiudadReceptor:      facturaTemp.CiudadReceptor,
-				ContactoReceptor:    facturaTemp.ContactoReceptor,
-				SubtotalNeto:        facturaTemp.SubtotalNeto,
-				Iva19:               facturaTemp.Iva19,
-				IvaRetenido:         facturaTemp.IvaRetenido,
-				TotalFinal:          facturaTemp.TotalFinal,
-				UrlPdf:              facturaTemp.UrlPdf,
-				UrlVerificacion:     facturaTemp.UrlVerificacion,
-				CreatedAt:           facturaTemp.CreatedAt,
-				UpdatedAt:           facturaTemp.UpdatedAt,
-				Items:               facturaTemp.Items,
-			}
-			// Guardar la factura real
-			if err := db.Create(&factura).Error; err != nil {
-				fmt.Println("Error guardando factura real:", err)
+		if status == "approved" {
+
+			// Actualizar el estado de la factura a "aprobado"
+			if err := db.Model(&models.Factura{}).
+				Where("quote_preview_id = ?", payment1.QuotePreviewID).
+				Update("estado", "aprobado").Error; err != nil {
+				fmt.Println("Error actualizando estado de factura:", err)
 			} else {
-				// Eliminar la factura temporal
-				db.Delete(&facturaTemp)
+				fmt.Println("Factura actualizada correctamente a estado 'aprobado'")
 			}
+
 		}
+
+		if status == "rejected" {
+
+			// Actualizar el estado de la factura a "aprobado"
+			if err := db.Model(&models.Factura{}).
+				Where("quote_preview_id = ?", payment1.QuotePreviewID).
+				Update("estado", "rechazado").Error; err != nil {
+				fmt.Println("Error actualizando estado de factura:", err)
+			} else {
+				fmt.Println("Factura actualizada correctamente a estado 'aprobado'")
+			}
+
+		}
+
 	}
 
 	//respuesta para el front del estado del pago

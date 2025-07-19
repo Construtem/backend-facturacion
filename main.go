@@ -14,7 +14,7 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error al cargar el archivo .env")
+		log.Println("Error al cargar el archivo .env")
 	}
 
 	dsnFromEnv := os.Getenv("DATABASE_DSN")
