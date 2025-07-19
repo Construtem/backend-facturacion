@@ -260,8 +260,9 @@ func GenerateInvoicePDF(factura *models.Factura, writer io.Writer) error {
 		pdf.SetX(tableX)
 		pdf.CellFormat(25, 8, tr("Referencia"), "1", 0, "C", true, 0, "")
 		pdf.CellFormat(60, 8, tr("Descripción"), "1", 0, "C", true, 0, "")
-		pdf.CellFormat(25, 8, tr("Cantidad"), "1", 0, "C", true, 0, "")
-		pdf.CellFormat(35, 8, tr("Precio unidad"), "1", 0, "C", true, 0, "")
+		pdf.CellFormat(18, 8, tr("Cantidad"), "1", 0, "C", true, 0, "")
+		pdf.CellFormat(27, 8, tr("Precio unidad"), "1", 0, "C", true, 0, "")
+		pdf.CellFormat(15, 8, tr("%Desc."), "1", 0, "C", true, 0, "")
 		pdf.CellFormat(25, 8, tr("Subtotal"), "1", 1, "C", true, 0, "")
 		pdf.SetTextColor(0, 0, 0)
 		pdf.SetDrawColor(0, 0, 0)
@@ -270,7 +271,7 @@ func GenerateInvoicePDF(factura *models.Factura, writer io.Writer) error {
 	// funcion para generar el pie de página
 	generateFooter := func() {
 		// Guardar el estado actual para restaurarlo después de dibujar el pie de página
-		pdf.SetY(-25) // Mueve la posición Y al final de la página (25mm desde abajo)
+		pdf.SetY(-25) // Mueve la posición Y al final de la página
 		pageW, pageH := pdf.GetPageSize()
 		tr := pdf.UnicodeTranslatorFromDescriptor("")
 
@@ -294,10 +295,6 @@ func GenerateInvoicePDF(factura *models.Factura, writer io.Writer) error {
 		// Número de página en la esquina derecha
 		pdf.SetXY(pageW-30, pageH-12)
 		pdf.Cell(0, 5, tr(fmt.Sprintf("Página %d de %d", pdf.PageNo(), totalPages)))
-
-		// Número de factura en la esquina derecha
-		// 	pdf.SetXY(pageW-30, pageH-10)
-		// 	pdf.Cell(0, 5, factura.Folio)
 
 		pdf.SetTextColor(0, 0, 0)
 	}
@@ -335,18 +332,15 @@ func GenerateInvoicePDF(factura *models.Factura, writer io.Writer) error {
 
 		startY := pdf.GetY()
 
-		// Color de los bordes
-		pdf.SetDrawColor(255, 255, 255) // Blanco para bordes
-		// pdf.SetDrawColor(240, 240, 240)    // Gris claro
-		// pdf.SetDrawColor(0, 102, 204)     // Azul corporativo
-		// pdf.SetDrawColor(255, 102, 0)    // Naranja (color del header)
-		// pdf.SetDrawColor(0, 0, 0)       // Negro (original)
-
-		// Colores de fondo alternados
+		// Colores de fondo y bordes alternados
 		if i%2 == 0 {
+			// Fila par - Fondo blanco, borde gris claro
 			pdf.SetFillColor(255, 255, 255) // Blanco
+			pdf.SetDrawColor(255, 255, 255) // Gris claro para bordes
 		} else {
+			// Fila impar - Fondo gris claro, borde más oscuro
 			pdf.SetFillColor(240, 240, 240) // Gris claro
+			pdf.SetDrawColor(240, 240, 240) // Gris Claro
 		}
 
 		pdf.SetX(tableX)
@@ -358,36 +352,47 @@ func GenerateInvoicePDF(factura *models.Factura, writer io.Writer) error {
 		descX := pdf.GetX()
 		descY := pdf.GetY()
 
+		// Aplicar el mismo color de fondo y borde para descripción
 		if i%2 == 0 {
 			pdf.SetFillColor(255, 255, 255) // Blanco
+			pdf.SetDrawColor(255, 255, 255) // Gris claro para bordes
 		} else {
 			pdf.SetFillColor(240, 240, 240) // Gris claro
+			pdf.SetDrawColor(240, 240, 240) // Gris más oscuro para bordes
 		}
+
 		pdf.Rect(descX, descY, 60, finalRowHeight, "DF")
 
-		pdf.SetDrawColor(255, 255, 255) // Mismo color que las otras celdas
-		pdf.Rect(descX, descY, 60, finalRowHeight, "D")
-
-		// Posicionar para MultiCell (con padding interno)
+		// Posicionar para MultiCell con padding interno
 		pdf.SetXY(descX+1, descY+1)
 		pdf.MultiCell(58, 4, tr(item.Descripcion), "", "L", false)
 
 		// Restaurar posición para las siguientes columnas
 		pdf.SetXY(descX+60, startY)
 
+		// Mantener el mismo color para el resto de la fila
 		if i%2 == 0 {
 			pdf.SetFillColor(255, 255, 255) // Blanco
+			pdf.SetDrawColor(255, 255, 255) // Gris claro para bordes
 		} else {
 			pdf.SetFillColor(240, 240, 240) // Gris claro
+			pdf.SetDrawColor(240, 240, 240) // Gris más oscuro para bordes
 		}
 
-		// Columna 3: Cantidad
-		pdf.CellFormat(25, finalRowHeight, fmt.Sprintf("%.0f", item.Cantidad), "1", 0, "C", true, 0, "")
+		// Columna 3: Cantidad (18mm)
+		pdf.CellFormat(18, finalRowHeight, fmt.Sprintf("%.0f", item.Cantidad), "1", 0, "C", true, 0, "")
 
-		// Columna 4: Precio unitario
-		pdf.CellFormat(35, finalRowHeight, FormatMoneySimple(item.PrecioUnitario), "1", 0, "R", true, 0, "")
+		// Columna 4: Precio unitario (27mm)
+		pdf.CellFormat(27, finalRowHeight, FormatMoneySimple(item.PrecioUnitario), "1", 0, "R", true, 0, "")
 
-		// Columna 5: Subtotal
+		// Columna 5: %Desc. (15mm)
+		descuentoPorcentaje := 0.0
+		if item.DescuentoPorc != 0 {
+			descuentoPorcentaje = item.DescuentoPorc
+		}
+		pdf.CellFormat(15, finalRowHeight, fmt.Sprintf("%.1f%%", descuentoPorcentaje), "1", 0, "C", true, 0, "")
+
+		// Columna 6: Subtotal (25mm)
 		pdf.CellFormat(25, finalRowHeight, FormatMoneySimple(item.TotalLinea), "1", 0, "R", true, 0, "")
 
 		// mover a la siguiente línea
@@ -476,7 +481,11 @@ func GenerateInvoicePDF(factura *models.Factura, writer io.Writer) error {
 	pdf.CellFormat(15, rowHeightTotals, FormatMoneySimple(factura.IvaRetenido), "", 1, "R", false, 0, "")
 
 	// agragar despacho y descuento.
-
+	/*pdf.SetX(rectX)
+	pdf.CellFormat(40, rowHeightTotals, "Descuento", "", 0, "L", false, 0, "")
+	pdf.CellFormat(5, rowHeightTotals, "$", "", 0, "L", false, 0, "")
+	pdf.CellFormat(15, rowHeightTotals, FormatMoneySimple(factura.DescuentoPorc), "", 1, "R", false, 0, "")
+	*/
 	pdf.SetX(rectX)
 	pdf.CellFormat(40, rowHeightTotals, "Despacho", "", 0, "L", false, 0, "")
 	pdf.CellFormat(5, rowHeightTotals, "$", "", 0, "L", false, 0, "")
