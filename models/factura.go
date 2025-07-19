@@ -44,7 +44,7 @@ type Factura struct {
 }
 
 func (Factura) TableName() string {
-	return "factura"
+	return "facturas"
 }
 
 type DetalleFactura struct {
