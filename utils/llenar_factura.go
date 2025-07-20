@@ -64,9 +64,6 @@ type DatosFacturaResponse struct {
 func CrearFactura(cotizacionID int, quotePreviewID int) (*models.Factura, error) {
 	// URL del endpoint usando variable de entorno
 	baseURL := os.Getenv("BACK_VENTAS_URL")
-	if baseURL == "" {
-		baseURL = "http://localhost:8080/"
-	}
 	url := fmt.Sprintf("%sapi/cotizaciones/checkout/%d", baseURL, cotizacionID)
 
 	fmt.Printf("🚀 Realizando petición a: %s\n", url)
@@ -104,6 +101,16 @@ func CrearFactura(cotizacionID int, quotePreviewID int) (*models.Factura, error)
 		return nil, fmt.Errorf("error al decodificar JSON: %v", err)
 	}
 
+	// Mostrar los datos decodificados en consola
+	fmt.Println("═══════════════════════════════════════════════════════════")
+	fmt.Println("📦 Datos decodificados del endpoint:")
+	if prettyJSON, err := json.MarshalIndent(datosFactura, "", "  "); err == nil {
+		fmt.Println(string(prettyJSON))
+	} else {
+		fmt.Printf("Error al mostrar datos decodificados: %v\n", err)
+	}
+	fmt.Println("═══════════════════════════════════════════════════════════")
+
 	// Convertir los items a json.RawMessage para guardar en la base de datos
 	itemsJSON, err := json.Marshal(datosFactura.Items)
 	if err != nil {
@@ -127,10 +134,13 @@ func CrearFactura(cotizacionID int, quotePreviewID int) (*models.Factura, error)
 	factura.ContactoReceptor = datosFactura.Cliente.Telefono
 	factura.Items = json.RawMessage(itemsJSON)
 
-	// Usar los datos del endpoint para subtotal y total (incluyendo descuentos)
-	factura.SubtotalNeto = datosFactura.SubtotalNeto - datosFactura.DescuentoTotal // subtotal con descuentos aplicados
+	// Asignar los datos del endpoint directamente, sin cálculos manuales
+	factura.SubtotalNeto = datosFactura.SubtotalNeto
 	factura.TotalFinal = datosFactura.Total
 	factura.Iva19 = datosFactura.IVA
+	// No considerar CostoEnvio para ningún cálculo
+	// Guardar el descuento total si el modelo lo soporta
+	// factura.DescuentoTotal = datosFactura.DescuentoTotal
 
 	// Campos adicionales que ahora están disponibles
 	factura.Estado = datosFactura.EstadoPago
