@@ -89,6 +89,7 @@ func Payment(c *gin.Context) {
 	if status == payment1.Status {
 
 		fmt.Println("Correcto")
+		fmt.Println(payment1.QuotePreviewID)
 
 		// Actualizar el estado de pago de la quote preview
 		db := utils.GetDB()
@@ -99,8 +100,25 @@ func Payment(c *gin.Context) {
 			fmt.Println("Error actualizando estado de pago:", err)
 		}
 
-		if status == "approved" {
+		// Obtener el ID de cotización desde el QuotePreview
+		var quotePreview models.QuotePreview
+		if err := db.Where("id = ?", payment1.QuotePreviewID).First(&quotePreview).Error; err != nil {
+			fmt.Println("Error obteniendo quote preview:", err)
+			c.JSON(500, gin.H{
+				"message": "Error obteniendo información de cotización",
+			})
+			return
+		}
 
+		// Enviar el estado usando el ID de cotización real
+		if err := utils.EstadoPago(payment1.Status, quotePreview.CotizacionId); err != nil {
+			c.JSON(400, gin.H{
+				"message": "No se pudo enviar el status de la cotizacion",
+			})
+			return
+		}
+
+		if status == "approved" {
 			// Actualizar el estado de la factura a "aprobado"
 			if err := db.Model(&models.Factura{}).
 				Where("quote_preview_id = ?", payment1.QuotePreviewID).
@@ -109,22 +127,18 @@ func Payment(c *gin.Context) {
 			} else {
 				fmt.Println("Factura actualizada correctamente a estado 'aprobado'")
 			}
-
 		}
 
 		if status == "rejected" {
-
-			// Actualizar el estado de la factura a "aprobado"
+			// Actualizar el estado de la factura a "rechazado"
 			if err := db.Model(&models.Factura{}).
 				Where("quote_preview_id = ?", payment1.QuotePreviewID).
 				Update("estado", "rechazado").Error; err != nil {
 				fmt.Println("Error actualizando estado de factura:", err)
 			} else {
-				fmt.Println("Factura actualizada correctamente a estado 'aprobado'")
+				fmt.Println("Factura actualizada correctamente a estado 'rechazado'")
 			}
-
 		}
-
 	}
 
 	//respuesta para el front del estado del pago
