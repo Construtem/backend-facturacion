@@ -56,7 +56,7 @@ func GetCotizacionByID(c *gin.Context) {
 		if err == gorm.ErrRecordNotFound {
 			// Llenar los datos de QuotePreview
 			preview1.CotizacionId = request1.CotizacionID
-			preview1.Subtotal = cotizacion.Total
+			preview1.Subtotal = cotizacion.Total / 1.19
 			preview1.Tax = preview1.Subtotal * 0.19
 			preview1.Total = preview1.Subtotal + preview1.Tax
 			preview1.PaymentStatus = models.Pending

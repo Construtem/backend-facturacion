@@ -64,7 +64,7 @@ type DatosFacturaResponse struct {
 func CrearFactura(cotizacionID int, quotePreviewID int) (*models.Factura, error) {
 	// URL del endpoint usando variable de entorno
 	baseURL := os.Getenv("BACK_VENTAS_URL")
-	url := fmt.Sprintf("%sapi/cotizaciones/checkout/%d", baseURL, cotizacionID)
+	url := fmt.Sprintf("%s/api/cotizaciones/checkout/%d", baseURL, cotizacionID)
 
 	fmt.Printf("🚀 Realizando petición a: %s\n", url)
 
