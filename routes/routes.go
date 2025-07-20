@@ -32,7 +32,6 @@ func SetupRouter() *gin.Engine {
 	r.POST("/API/v1/webhook", mercadopago.Webhook)
 	r.POST("/API/v1/payment", mercadopago.Payment)
 	r.GET("/api/cotizacion/:id", handlers.GetCotizacionByID)
-	r.POST("API/crear_preview", handlers.CrearQuotePreview)
 	r.GET("/api/pdf/factura/:id", handlers.GenerateInvoicePDFHandler)
 	r.GET("/API/v1/post-pago/:id", handlers.PostPago)
 
