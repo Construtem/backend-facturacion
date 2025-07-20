@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Estructuras para mapear la respuesta del endpoint
+// Estructuras actualizadas para mapear la respuesta del endpoint
 type Cliente struct {
 	Rut      string `json:"rut"`
 	Nombre   string `json:"nombre"`
@@ -24,42 +24,52 @@ type Usuario struct {
 	RolID  int    `json:"rol_id"`
 }
 
-type Direccion struct {
+type DireccionCliente struct {
 	Direccion string `json:"direccion"`
 	Comuna    string `json:"comuna"`
 	Ciudad    string `json:"ciudad"`
+	Region    string `json:"region"`
 }
 
-type ItemFactura struct {
-	Sku            string  `json:"sku"`
-	Nombre         string  `json:"nombre"`
-	Cantidad       int     `json:"cantidad"`
-	PrecioUnitario float64 `json:"precio_unitario"`
-	Subtotal       float64 `json:"subtotal"`
-	Sucursal       string  `json:"sucursal"`
+type CheckoutItemDTO struct {
+	SKU        string  `json:"sku"`
+	Nombre     string  `json:"nombre"`
+	Cantidad   int     `json:"cantidad"`
+	PrecioUnit float64 `json:"precio_unit"`
+	Subtotal   float64 `json:"subtotal"`
+	Descuento  int     `json:"descuento"` // porcentaje entero 0-100
+	Sucursal   string  `json:"sucursal"`
 }
 
-// DatosFacturaResponse representa la estructura de la respuesta del endpoint
+// DatosFacturaResponse actualizada para coincidir con CheckoutCotizacionResponse
 type DatosFacturaResponse struct {
-	ID           int           `json:"id"`
-	FechaCrea    string        `json:"fecha_crea"`
-	Estado       string        `json:"estado"`
-	CostoEnvio   float64       `json:"costo_envio"`
-	TipoDespacho string        `json:"tipo_despacho"`
-	Cliente      Cliente       `json:"cliente"`
-	Usuario      Usuario       `json:"usuario"`
-	Direccion    Direccion     `json:"direccion"`
-	Items        []ItemFactura `json:"items"`
-	SubtotalNeto float64       `json:"subtotal_neto"`
-	Iva          float64       `json:"iva"`
-	Total        float64       `json:"total"`
+	ID             int               `json:"id"`
+	FechaCrea      string            `json:"fecha_crea"`
+	Estado         string            `json:"estado"`
+	TipoDespacho   string            `json:"tipo_despacho"`
+	EstadoPago     string            `json:"estado_pago"`
+	Cliente        Cliente           `json:"cliente"`
+	Usuario        Usuario           `json:"usuario"`
+	Direccion      DireccionCliente  `json:"direccion"`
+	Items          []CheckoutItemDTO `json:"items"`
+	CostoEnvio     float64           `json:"costo_envio"`
+	SubtotalNeto   float64           `json:"subtotal_neto"`
+	DescuentoTotal float64           `json:"descuento_total"`
+	IVA            float64           `json:"iva"`
+	Total          float64           `json:"total"`
+	PreviewID      *int              `json:"preview_id,omitempty"`
 }
 
 // CrearFactura obtiene datos del endpoint de prueba y crea una factura
 func CrearFactura(cotizacionID int, quotePreviewID int) (*models.Factura, error) {
 	// URL del endpoint usando variable de entorno
 	baseURL := os.Getenv("BACK_VENTAS_URL")
+	if baseURL == "" {
+		baseURL = "http://localhost:8080/"
+	}
 	url := fmt.Sprintf("%sapi/cotizaciones/checkout/%d", baseURL, cotizacionID)
+
+	fmt.Printf("🚀 Realizando petición a: %s\n", url)
 
 	// Realizar la petición HTTP
 	resp, err := http.Get(url)
@@ -68,10 +78,24 @@ func CrearFactura(cotizacionID int, quotePreviewID int) (*models.Factura, error)
 	}
 	defer resp.Body.Close()
 
+	fmt.Printf("📊 Status Code: %d\n", resp.StatusCode)
+
 	// Leer la respuesta
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("error al leer la respuesta: %v", err)
+	}
+
+	// Mostrar la respuesta en formato JSON pretty (solo si DEBUG está habilitado)
+	if os.Getenv("DEBUG_ENDPOINT") == "true" {
+		fmt.Println("📋 Respuesta del endpoint:")
+		var prettyData interface{}
+		if err := json.Unmarshal(body, &prettyData); err == nil {
+			if prettyJSON, err := json.MarshalIndent(prettyData, "", "  "); err == nil {
+				fmt.Println(string(prettyJSON))
+			}
+		}
+		fmt.Println("═══════════════════════════════════════════════════════════")
 	}
 
 	// Decodificar la respuesta JSON
@@ -103,15 +127,13 @@ func CrearFactura(cotizacionID int, quotePreviewID int) (*models.Factura, error)
 	factura.ContactoReceptor = datosFactura.Cliente.Telefono
 	factura.Items = json.RawMessage(itemsJSON)
 
-	// Usar los datos del endpoint para subtotal y total
-	factura.SubtotalNeto = datosFactura.SubtotalNeto
+	// Usar los datos del endpoint para subtotal y total (incluyendo descuentos)
+	factura.SubtotalNeto = datosFactura.SubtotalNeto - datosFactura.DescuentoTotal // subtotal con descuentos aplicados
 	factura.TotalFinal = datosFactura.Total
-	factura.Iva19 = datosFactura.Iva
+	factura.Iva19 = datosFactura.IVA
 
-	// Agregar datos del usuario (si tienes estos campos en el modelo)
-	// factura.UsuarioNombre = datosFactura.Usuario.Nombre
-	// factura.UsuarioEmail = datosFactura.Usuario.Email
-	// factura.UsuarioRolID = datosFactura.Usuario.RolID
+	// Campos adicionales que ahora están disponibles
+	factura.Estado = datosFactura.EstadoPago
 
 	// Campos constantes o valores por defecto
 	factura.Folio = fmt.Sprintf("FOLIO%d", datosFactura.ID)
