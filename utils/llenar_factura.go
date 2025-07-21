@@ -138,7 +138,7 @@ func CrearFactura(cotizacionID int, quotePreviewID int) (*models.Factura, error)
 	factura.SubtotalNeto = datosFactura.SubtotalNeto
 	factura.TotalFinal = datosFactura.Total
 	factura.Iva19 = datosFactura.IVA
-	// No considerar CostoEnvio para ningún cálculo
+	factura.Envio = datosFactura.CostoEnvio // Guardar el costo de envío
 	// Guardar el descuento total si el modelo lo soporta
 	// factura.DescuentoTotal = datosFactura.DescuentoTotal
 
