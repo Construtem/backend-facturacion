@@ -110,12 +110,30 @@ func Payment(c *gin.Context) {
 			return
 		}
 
-		// Enviar el estado usando el ID de cotización real
+		// Actualizar la columna pago_id en cotizaciones usando solo el ID de cotización
+		var cotizacionID int
+		errCot := db.Table("preview_cotizacion").
+			Select("cotizacion_id").
+			Where("id = ?", payment1.QuotePreviewID).
+			Row().Scan(&cotizacionID)
+		if errCot != nil {
+			fmt.Println("Error obteniendo cotizacion_id desde quote_previews:", errCot)
+		} else {
+			if err := db.Table("cotizaciones").
+				Where("id = ?", cotizacionID).
+				Update("pago_id", payment1.PagoID).Error; err != nil {
+				fmt.Println("Error actualizando pago_id en cotizaciones:", err)
+			} else {
+				fmt.Println("pago_id actualizado correctamente en cotizaciones")
+			}
+		}
+
+		/*// Enviar el estado usando el ID de cotización real
 		if err := utils.EstadoPago(payment1.Status, quotePreview.CotizacionId); err != nil {
 			c.JSON(400, gin.H{
 				"message": "No se pudo enviar el status de la cotizacion",
 			})
-		}
+		}*/
 
 		if status == "approved" {
 			// Actualizar el estado de la factura a "aprobado"
@@ -136,6 +154,17 @@ func Payment(c *gin.Context) {
 				fmt.Println("Error actualizando estado de factura:", err)
 			} else {
 				fmt.Println("Factura actualizada correctamente a estado 'rechazado'")
+			}
+		}
+
+		if status == "in_process" {
+			// Actualizar el estado de la factura a "en proceso"
+			if err := db.Model(&models.Factura{}).
+				Where("quote_preview_id = ?", payment1.QuotePreviewID).
+				Update("estado", "en proceso").Error; err != nil {
+				fmt.Println("Error actualizando estado de factura:", err)
+			} else {
+				fmt.Println("Factura actualizada correctamente a estado 'en proceso'")
 			}
 		}
 	}

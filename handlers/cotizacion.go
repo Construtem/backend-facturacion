@@ -79,6 +79,32 @@ func GetCotizacionByID(c *gin.Context) {
 		// Si encontramos el QuotePreview, verificar si está pagado
 		// Verificar el estado de pago basándose en PaymentStatus
 		statusPagado = preview1.PaymentStatus
+		if statusPagado == "in_process" {
+
+			// Buscar el pago_id en la tabla cotizaciones usando el ID de la cotización
+			var pagoID int
+			errPago := db.Table("cotizaciones").
+				Select("pago_id").
+				Where("id = ?", request1.CotizacionID).
+				Row().Scan(&pagoID)
+			if errPago != nil {
+				fmt.Printf("Error obteniendo pago_id para la cotización %d: %v\n", request1.CotizacionID, errPago)
+			} else {
+				// Llamar directamente a utils.VerificarPago
+				status := utils.VerificarPago(pagoID)
+				fmt.Printf("Status de pago para pago_id %d: %s\n", pagoID, status)
+
+				if status == string(statusPagado) {
+
+					statusPagado = "en proceso"
+				} else {
+
+					statusPagado = models.PaymentStatus(status)
+				}
+			}
+
+		}
+
 	}
 
 	// Verificar si ya existe una factura para esta cotización
