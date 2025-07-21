@@ -315,7 +315,7 @@ func GenerateInvoicePDF(factura *models.Factura, writer io.Writer) error {
 	pdf.SetFillColor(255, 255, 255)
 
 	for i, item := range detalles {
-		descHeight := calculateRowHeight(pdf, item.Descripcion, 60.0)
+		descHeight := calculateRowHeight(pdf, item.Nombre, 60.0)
 		finalRowHeight := math.Max(rowHeight, descHeight)
 
 		currentY := pdf.GetY()
@@ -365,7 +365,7 @@ func GenerateInvoicePDF(factura *models.Factura, writer io.Writer) error {
 
 		// Posicionar para MultiCell con padding interno
 		pdf.SetXY(descX+1, descY+1)
-		pdf.MultiCell(58, 4, tr(item.Descripcion), "", "L", false)
+		pdf.MultiCell(58, 4, tr(item.Nombre), "", "L", false)
 
 		// Restaurar posición para las siguientes columnas
 		pdf.SetXY(descX+60, startY)
@@ -387,13 +387,13 @@ func GenerateInvoicePDF(factura *models.Factura, writer io.Writer) error {
 
 		// Columna 5: %Desc. (15mm)
 		descuentoPorcentaje := 0.0
-		if item.DescuentoPorc != 0 {
-			descuentoPorcentaje = item.DescuentoPorc
+		if item.Descuento != 0 {
+			descuentoPorcentaje = item.Descuento
 		}
 		pdf.CellFormat(15, finalRowHeight, fmt.Sprintf("%.1f%%", descuentoPorcentaje), "1", 0, "C", true, 0, "")
 
 		// Columna 6: Subtotal (25mm)
-		pdf.CellFormat(25, finalRowHeight, FormatMoneySimple(item.TotalLinea), "1", 0, "R", true, 0, "")
+		pdf.CellFormat(25, finalRowHeight, FormatMoneySimple(item.Subtotal), "1", 0, "R", true, 0, "")
 
 		// mover a la siguiente línea
 		pdf.SetXY(tableX, startY+finalRowHeight)
