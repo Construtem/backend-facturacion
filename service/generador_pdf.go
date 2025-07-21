@@ -259,7 +259,7 @@ func GenerateInvoicePDF(factura *models.Factura, writer io.Writer) error {
 
 		pdf.SetX(tableX)
 		pdf.CellFormat(25, 8, tr("Referencia"), "1", 0, "C", true, 0, "")
-		pdf.CellFormat(60, 8, tr("Descripción"), "1", 0, "C", true, 0, "")
+		pdf.CellFormat(60, 8, tr("Nombre"), "1", 0, "C", true, 0, "")
 		pdf.CellFormat(18, 8, tr("Cantidad"), "1", 0, "C", true, 0, "")
 		pdf.CellFormat(27, 8, tr("Precio unidad"), "1", 0, "C", true, 0, "")
 		pdf.CellFormat(15, 8, tr("%Desc."), "1", 0, "C", true, 0, "")

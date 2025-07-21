@@ -35,7 +35,7 @@ type CheckoutItemDTO struct {
 	SKU        string  `json:"sku"`
 	Nombre     string  `json:"nombre"`
 	Cantidad   int     `json:"cantidad"`
-	PrecioUnit float64 `json:"precio_unit"`
+	PrecioUnit float64 `json:"precio_unitario"`
 	Subtotal   float64 `json:"subtotal"`
 	Descuento  int     `json:"descuento"` // porcentaje entero 0-100
 	Sucursal   string  `json:"sucursal"`
