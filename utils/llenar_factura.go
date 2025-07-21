@@ -140,7 +140,7 @@ func CrearFactura(cotizacionID int, quotePreviewID int) (*models.Factura, error)
 	factura.Iva19 = datosFactura.IVA
 	factura.Envio = datosFactura.CostoEnvio // Guardar el costo de envío
 	// Guardar el descuento total si el modelo lo soporta
-	// factura.DescuentoTotal = datosFactura.DescuentoTotal
+	factura.Descuento = datosFactura.DescuentoTotal
 
 	// Campos adicionales que ahora están disponibles
 	factura.Estado = datosFactura.EstadoPago
