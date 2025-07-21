@@ -95,10 +95,22 @@ func GetCotizacionByID(c *gin.Context) {
 				fmt.Printf("Status de pago para pago_id %d: %s\n", pagoID, status)
 
 				if status == string(statusPagado) {
-
 					statusPagado = "en proceso"
 				} else {
+					// Actualizar el payment_status en la tabla preview_cotizacion usando el ID encontrado
+					if err := db.Table("preview_cotizacion").
+						Where("id = ?", preview1.ID).
+						Update("payment_status", status).Error; err != nil {
+						fmt.Printf("Error actualizando payment_status en preview_cotizacion: %v\n", err)
+					} else {
+						fmt.Printf("payment_status actualizado correctamente en preview_cotizacion (id=%d)\n", preview1.ID)
+					}
 
+					if err := utils.EstadoPago(status, request1.CotizacionID); err != nil {
+						c.JSON(400, gin.H{
+							"message": "No se pudo enviar el status de la cotizacion",
+						})
+					}
 					statusPagado = models.PaymentStatus(status)
 				}
 			}

@@ -128,12 +128,12 @@ func Payment(c *gin.Context) {
 			}
 		}
 
-		/*// Enviar el estado usando el ID de cotización real
+		// Enviar el estado usando el ID de cotización real
 		if err := utils.EstadoPago(payment1.Status, quotePreview.CotizacionId); err != nil {
 			c.JSON(400, gin.H{
 				"message": "No se pudo enviar el status de la cotizacion",
 			})
-		}*/
+		}
 
 		if status == "approved" {
 			// Actualizar el estado de la factura a "aprobado"
