@@ -466,19 +466,9 @@ func GenerateInvoicePDF(factura *models.Factura, writer io.Writer) error {
 	pdf.SetY(startTotalsY)
 
 	pdf.SetX(rectX)
-	pdf.CellFormat(40, rowHeightTotals, "Subtotal con descuento", "", 0, "L", false, 0, "")
+	pdf.CellFormat(40, rowHeightTotals, "Subtotal neto", "", 0, "L", false, 0, "")
 	pdf.CellFormat(5, rowHeightTotals, "$", "", 0, "L", false, 0, "")
 	pdf.CellFormat(15, rowHeightTotals, FormatMoneySimple(factura.SubtotalNeto), "", 1, "R", false, 0, "")
-
-	pdf.SetX(rectX)
-	pdf.CellFormat(40, rowHeightTotals, "IVA 19%", "", 0, "L", false, 0, "")
-	pdf.CellFormat(5, rowHeightTotals, "$", "", 0, "L", false, 0, "")
-	pdf.CellFormat(15, rowHeightTotals, FormatMoneySimple(factura.Iva19), "", 1, "R", false, 0, "")
-
-	pdf.SetX(rectX)
-	pdf.CellFormat(40, rowHeightTotals, "IVA Retenido", "", 0, "L", false, 0, "")
-	pdf.CellFormat(5, rowHeightTotals, "$", "", 0, "L", false, 0, "")
-	pdf.CellFormat(15, rowHeightTotals, FormatMoneySimple(factura.IvaRetenido), "", 1, "R", false, 0, "")
 
 	// agragar despacho y descuento.
 	pdf.SetX(rectX)
@@ -490,6 +480,16 @@ func GenerateInvoicePDF(factura *models.Factura, writer io.Writer) error {
 	pdf.CellFormat(40, rowHeightTotals, "Despacho", "", 0, "L", false, 0, "")
 	pdf.CellFormat(5, rowHeightTotals, "$", "", 0, "L", false, 0, "")
 	pdf.CellFormat(15, rowHeightTotals, FormatMoneySimple(factura.Envio), "", 1, "R", false, 0, "")
+
+	pdf.SetX(rectX)
+	pdf.CellFormat(40, rowHeightTotals, "IVA 19%", "", 0, "L", false, 0, "")
+	pdf.CellFormat(5, rowHeightTotals, "$", "", 0, "L", false, 0, "")
+	pdf.CellFormat(15, rowHeightTotals, FormatMoneySimple(factura.Iva19), "", 1, "R", false, 0, "")
+
+	pdf.SetX(rectX)
+	pdf.CellFormat(40, rowHeightTotals, "IVA Retenido", "", 0, "L", false, 0, "")
+	pdf.CellFormat(5, rowHeightTotals, "$", "", 0, "L", false, 0, "")
+	pdf.CellFormat(15, rowHeightTotals, FormatMoneySimple(factura.IvaRetenido), "", 1, "R", false, 0, "")
 
 	pdf.SetX(rectX)
 	pdf.SetFont("Arial", "B", 10)
