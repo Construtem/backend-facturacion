@@ -50,12 +50,12 @@ func (Factura) TableName() string {
 
 type DetalleFactura struct {
 	SKU            string  `json:"sku"`
-	Descripcion    string  `json:"descripcion"`
+	Nombre         string  `json:"nombre"`
 	Cantidad       float64 `json:"cantidad"`
 	PrecioUnitario float64 `json:"precio_unitario"`
-	DescuentoPorc  float64 `json:"descuento_porc"`
-	RecargoPorc    float64 `json:"recargo_porc"`
-	TotalLinea     float64 `json:"total_linea"`
+	Subtotal       float64 `json:"subtotal"`
+	Sucursal       string  `json:"sucursal"`
+	Descuento      float64 `json:"descuento"`
 }
 
 // Método para obtener los detalles desde el JSON
