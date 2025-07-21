@@ -25,9 +25,9 @@ func MandarStatus(cotizacionID int, status string) error {
 
 	url := os.Getenv("BACK_VENTAS_URL")
 
-	url1 := fmt.Sprintf("%sapi/status-pago", url)
+	url1 := fmt.Sprintf("%s/api/status-pago", url)
 
-	req, err := http.NewRequest("POST", url1, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest("PATCH", url1, bytes.NewBuffer(jsonData))
 
 	// Establecer headers
 	req.Header.Set("Content-Type", "application/json")

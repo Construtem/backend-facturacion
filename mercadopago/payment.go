@@ -115,7 +115,6 @@ func Payment(c *gin.Context) {
 			c.JSON(400, gin.H{
 				"message": "No se pudo enviar el status de la cotizacion",
 			})
-			return
 		}
 
 		if status == "approved" {
