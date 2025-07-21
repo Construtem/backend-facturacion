@@ -14,7 +14,7 @@ type StatusPagoRequest struct {
 
 func EstadoPago(status string, CotizacionID int) error {
 	baseURL := os.Getenv("BACK_VENTAS_URL")
-	url := fmt.Sprintf("%sapi/cotizaciones/status/%d", baseURL, CotizacionID)
+	url := fmt.Sprintf("%s/api/cotizaciones/status/%d", baseURL, CotizacionID)
 
 	fmt.Printf("🚀 URL: %s\n", url)
 	fmt.Printf("📤 Status: %s\n", status)
