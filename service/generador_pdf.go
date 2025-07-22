@@ -474,7 +474,7 @@ func GenerateInvoicePDF(factura *models.Factura, writer io.Writer) error {
 	pdf.SetX(rectX)
 	pdf.CellFormat(40, rowHeightTotals, "Descuento", "", 0, "L", false, 0, "")
 	pdf.CellFormat(5, rowHeightTotals, "$", "", 0, "L", false, 0, "")
-	pdf.CellFormat(15, rowHeightTotals, FormatMoneySimple(factura.Descuento), "", 1, "R", false, 0, "")
+	pdf.CellFormat(15, rowHeightTotals, FormatMoneySimple(factura.Descuento*(-1)), "", 1, "R", false, 0, "")
 
 	pdf.SetX(rectX)
 	pdf.CellFormat(40, rowHeightTotals, "Despacho", "", 0, "L", false, 0, "")

@@ -4,7 +4,11 @@ import "time"
 
 type Cotizacion struct {
 	ID           uint      `json:"id"`
-	FechaEmision time.Time `json:"fecha_emision"`
+	FechaCrea    time.Time `json:"fecha_emision"`
+	Estado       string
+	CostoEnvio   int
+	RutCliente   string
+	UserID       string
 	CotizacionID int
 	Subtotal     float64 `json:"subtotal"`
 	Impuesto     float64 `json:"impuesto"`

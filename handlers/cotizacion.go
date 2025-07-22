@@ -79,6 +79,44 @@ func GetCotizacionByID(c *gin.Context) {
 		// Si encontramos el QuotePreview, verificar si está pagado
 		// Verificar el estado de pago basándose en PaymentStatus
 		statusPagado = preview1.PaymentStatus
+		if statusPagado == "in_process" {
+
+			// Buscar el pago_id en la tabla cotizaciones usando el ID de la cotización
+			var pagoID int
+			errPago := db.Table("cotizaciones").
+				Select("pago_id").
+				Where("id = ?", request1.CotizacionID).
+				Row().Scan(&pagoID)
+			if errPago != nil {
+				fmt.Printf("Error obteniendo pago_id para la cotización %d: %v\n", request1.CotizacionID, errPago)
+			} else {
+				// Llamar directamente a utils.VerificarPago
+				status := utils.VerificarPago(pagoID)
+				fmt.Printf("Status de pago para pago_id %d: %s\n", pagoID, status)
+
+				if status == string(statusPagado) {
+					statusPagado = "en proceso"
+				} else {
+					// Actualizar el payment_status en la tabla preview_cotizacion usando el ID encontrado
+					if err := db.Table("preview_cotizacion").
+						Where("id = ?", preview1.ID).
+						Update("payment_status", status).Error; err != nil {
+						fmt.Printf("Error actualizando payment_status en preview_cotizacion: %v\n", err)
+					} else {
+						fmt.Printf("payment_status actualizado correctamente en preview_cotizacion (id=%d)\n", preview1.ID)
+					}
+
+					if err := utils.EstadoPago(status, request1.CotizacionID); err != nil {
+						c.JSON(400, gin.H{
+							"message": "No se pudo enviar el status de la cotizacion",
+						})
+					}
+					statusPagado = models.PaymentStatus(status)
+				}
+			}
+
+		}
+
 	}
 
 	// Verificar si ya existe una factura para esta cotización
