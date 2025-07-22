@@ -12,10 +12,11 @@ import (
 
 // Estructuras actualizadas para mapear la respuesta del endpoint
 type Cliente struct {
-	Rut      string `json:"rut"`
-	Nombre   string `json:"nombre"`
-	Telefono string `json:"telefono"`
-	Email    string `json:"email"`
+	Rut         string `json:"rut"`
+	Nombre      string `json:"nombre"`
+	Telefono    string `json:"telefono"`
+	Email       string `json:"email"`
+	RazonSocial string `json:"razon_social"`
 }
 
 type Usuario struct {
@@ -125,7 +126,7 @@ func CrearFactura(cotizacionID int, quotePreviewID int) (*models.Factura, error)
 	factura.QuotePreviewID = quotePreviewID // Usar el parámetro recibido
 	factura.RutCliente = datosFactura.Cliente.Rut
 	factura.TipoDocumento = "FACTURA"
-	factura.RutEmisor = "76543210-9"
+	factura.RutEmisor = "76.123.456-7"
 	factura.EmailEmisor = datosFactura.Usuario.Email
 	factura.RutReceptor = datosFactura.Cliente.Rut
 	factura.DireccionReceptor = datosFactura.Direccion.Direccion
@@ -152,13 +153,18 @@ func CrearFactura(cotizacionID int, quotePreviewID int) (*models.Factura, error)
 	factura.TimbreElectronico = "TIMBRE"
 	factura.SiiIndicacion = "SII"
 	factura.FraseLegal = "Frase legal"
-	factura.RazonSocialEmisor = "Empresa S.A."
-	factura.GiroEmisor = "Servicios"
-	factura.DireccionEmisor = "Calle Falsa 123"
-	factura.ComunaEmisor = "Comuna"
-	factura.CiudadEmisor = "Ciudad"
-	factura.TelefonoEmisor = "123456789"
-	factura.RazonSocialReceptor = datosFactura.Cliente.Nombre
+	factura.RazonSocialEmisor = "Ferretería Construtem S.A."
+	factura.GiroEmisor = "Venta al por mayor y menor de artículos de ferreteria"
+	factura.DireccionEmisor = "Av. José Pedro Alessandri 1242"
+	factura.ComunaEmisor = "Ñuñoa"
+	factura.CiudadEmisor = "Santiago"
+	factura.TelefonoEmisor = "+56 2 1234 5679"
+	if datosFactura.Cliente.RazonSocial == "" {
+		factura.RazonSocialReceptor = datosFactura.Cliente.Nombre
+	} else {
+		factura.RazonSocialReceptor = datosFactura.Cliente.RazonSocial
+	}
+
 	factura.GiroReceptor = "Comercio"
 	factura.IvaRetenido = 0
 	factura.UrlPdf = ""
