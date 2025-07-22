@@ -12,7 +12,7 @@ import (
 func ObtenerUsuario(cotizacionID int) (*Usuario, error) {
 	// URL del endpoint usando variable de entorno
 	baseURL := os.Getenv("BACK_VENTAS_URL")
-	url := fmt.Sprintf("%sapi/cotizaciones/checkout/%d", baseURL, cotizacionID)
+	url := fmt.Sprintf("%s/api/cotizaciones/checkout/%d", baseURL, cotizacionID)
 
 	// Realizar la petición HTTP
 	resp, err := http.Get(url)

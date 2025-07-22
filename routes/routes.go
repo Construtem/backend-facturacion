@@ -21,8 +21,10 @@ func SetupRouter() *gin.Engine {
 			os.Getenv("FRONT_VENTAS_URL"),      // URL del frontend de ventas
 			os.Getenv("FRONT_INVENTARIO_URL"),  // URL del frontend de inventario
 			os.Getenv("FRONT_FACTURACION_URL"), // URL del frontend de facturación
+			os.Getenv("MERCADOPAGO_API_URL"),   //URL de la api de mercadopago
+			os.Getenv("BACK_VENTAS_URL"),       //URL del backend de ventas
 		},
-		AllowMethods:     []string{"GET", "POST"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		AllowCredentials: false,
 		MaxAge:           12 * time.Hour, // Tiempo máximo de caché para las solicitudes CORS
@@ -32,7 +34,6 @@ func SetupRouter() *gin.Engine {
 	r.POST("/API/v1/webhook", mercadopago.Webhook)
 	r.POST("/API/v1/payment", mercadopago.Payment)
 	r.GET("/api/cotizacion/:id", handlers.GetCotizacionByID)
-	r.POST("API/crear_preview", handlers.CrearQuotePreview)
 	r.GET("/api/pdf/factura/:id", handlers.GenerateInvoicePDFHandler)
 	r.GET("/API/v1/post-pago/:id", handlers.PostPago)
 

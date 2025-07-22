@@ -95,7 +95,7 @@ func EnviarDespachoHandler(c *gin.Context) {
 func enviarHTTPADespacho(data DespachoSimpleRequest) error {
 	baseURL := os.Getenv("BACK_INVENTARIO_URL")
 	if baseURL == "" {
-		baseURL = "https://api-inventario.tssw.cl" // Valor por defecto si no está configurado
+    	baseURL = "https://api-inventario.tssw.cl" // Valor por defecto si no está configurado
 	}
 
 	despachoURL := fmt.Sprintf("%s/despachos/cambiar-estado", baseURL)

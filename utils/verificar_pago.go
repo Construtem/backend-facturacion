@@ -9,7 +9,8 @@ import (
 
 func VerificarPago(id int) string {
 	accessToken := os.Getenv("ACCESS_TOKEN")
-	url := fmt.Sprintf("https://api.mercadopago.com/v1/payments/%d", id)
+	baseURL := os.Getenv("MERCADOPAGO_API_URL")
+	url := fmt.Sprintf("%s/v1/payments/%d", baseURL, id)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
