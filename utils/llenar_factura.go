@@ -159,8 +159,13 @@ func CrearFactura(cotizacionID int, quotePreviewID int) (*models.Factura, error)
 	factura.ComunaEmisor = "Ñuñoa"
 	factura.CiudadEmisor = "Santiago"
 	factura.TelefonoEmisor = "+56 2 1234 5679"
-	factura.RazonSocialReceptor = datosFactura.Cliente.RazonSocial
-	factura.GiroReceptor = " "
+	if datosFactura.Cliente.RazonSocial == "" {
+		factura.RazonSocialReceptor = datosFactura.Cliente.Nombre
+	} else {
+		factura.RazonSocialReceptor = datosFactura.Cliente.RazonSocial
+	}
+
+	factura.GiroReceptor = "Comercio"
 	factura.IvaRetenido = 0
 	factura.UrlPdf = ""
 	factura.UrlVerificacion = ""
