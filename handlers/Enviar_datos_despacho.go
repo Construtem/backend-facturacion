@@ -32,11 +32,7 @@ Headers que se envían:
 
 // DespachoSimpleRequest estructura para envío a despacho
 type DespachoSimpleRequest struct {
-	CotizacionID      int    `json:"cotizacion_id"`
-	RutReceptor       string `json:"rut_receptor"`
-	DireccionReceptor string `json:"direccion_receptor"`
-	ComunaReceptor    string `json:"comuna_receptor"`
-	CiudadReceptor    string `json:"ciudad_receptor"`
+	CotizacionID int `json:"cotizacion_id"`
 }
 
 // EnviarDespachoHandler envía datos a despacho
@@ -67,24 +63,20 @@ func EnviarDespachoHandler(c *gin.Context) {
 	}
 
 	// Validar datos mínimos
-	if factura.CotizacionID == 0 || factura.DireccionReceptor == "" {
+	if factura.CotizacionID == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Datos incompletos",
+			"error": "CotizacionID no válido",
 		})
 		return
 	}
 
 	// Preparar datos para envío
 	despachoData := DespachoSimpleRequest{
-		CotizacionID:      factura.CotizacionID,
-		RutReceptor:       factura.RutReceptor,
-		DireccionReceptor: factura.DireccionReceptor,
-		ComunaReceptor:    factura.ComunaReceptor,
-		CiudadReceptor:    factura.CiudadReceptor,
+		CotizacionID: factura.CotizacionID,
 	}
 
 	// Enviar a despacho
-	if err := enviarHTTPADespacho(despachoData, factura.CotizacionID); err != nil {
+	if err := enviarHTTPADespacho(despachoData); err != nil {
 		log.Printf("Error al enviar a despacho: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Error al enviar a despacho",
@@ -100,13 +92,13 @@ func EnviarDespachoHandler(c *gin.Context) {
 }
 
 // enviarHTTPADespacho realiza el envío HTTP
-func enviarHTTPADespacho(data DespachoSimpleRequest, cotizacionID int) error {
+func enviarHTTPADespacho(data DespachoSimpleRequest) error {
 	baseURL := os.Getenv("BACK_INVENTARIO_URL")
 	if baseURL == "" {
-		baseURL = "http://localhost:8080"
+		baseURL = "https://api-inventario.tssw.cl" // Valor por defecto si no está configurado
 	}
 
-	despachoURL := fmt.Sprintf("%s/api/despachos/%d/ficha", baseURL, cotizacionID)
+	despachoURL := fmt.Sprintf("%s/despachos/cambiar-estado", baseURL)
 
 	// Convertir a JSON
 	jsonData, err := json.Marshal(data)
